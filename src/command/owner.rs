@@ -19,10 +19,10 @@ struct OwnersOnly;
 
 #[command]
 async fn reload_json(ctx: &Context, original_msg: &Message) -> CommandResult {
-    let type_map = ctx.data.read().await;
+    let mut type_map = ctx.data.write().await;
 
     let paths = match type_map.get::<data_keys::GetJsonPaths>() {
-        Some(paths) => paths,
+        Some(paths) => paths.clone(),
         None => {
             original_msg
                 .channel_id
@@ -32,8 +32,8 @@ async fn reload_json(ctx: &Context, original_msg: &Message) -> CommandResult {
         }
     };
 
-    client::initialize_embed_map(&paths, ctx).await;
-    client::initialize_emoji_map(&paths, ctx).await;
+    client::initialize_embed_map(&paths, &mut type_map).await;
+    client::initialize_emoji_map(&paths, &mut type_map).await;
 
     original_msg
         .channel_id
