@@ -15,5 +15,35 @@
       }
     ],
     "type": "rich"
+  },
+  "activity_embed_1": {
+    "author": {
+      "name": "Activity Roster Setup"
+    },
+    "color": 2171169,
+    "description": "Welcome to the activity roster setup.\nPlease select an activity type.",
+    "fields": [
+      {
+        "inline": false,
+        "name": ":one: Vanguard",
+        "value": "Vanguard operations, suh as strikes, Nightfalls, and Grandmasters."
+      },
+      {
+        "inline": false,
+        "name": ":two: Crucible",
+        "value": "Crucible activities, such as Control, Trials, and Rumble."
+      },
+      {
+        "inline": false,
+        "name": ":three: Raids",
+        "value": "6-man raid activities."
+      },
+      {
+        "inline": false,
+        "name": ":four:: Seasonal",
+        "value": "Seasonal activities, such as Wrathborn Hunts, Battlegrounds, and Override."
+      }
+    ],
+    "type": "rich"
   }
 }
