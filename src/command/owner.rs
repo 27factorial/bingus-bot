@@ -37,7 +37,7 @@ async fn reload_json(ctx: &Context, original_msg: &Message) -> CommandResult {
 
     original_msg
         .channel_id
-        .say(ctx, "JSON values reinitialized.")
+        .say(ctx, "JSON values reloaded.")
         .await?;
     Ok(())
 }
