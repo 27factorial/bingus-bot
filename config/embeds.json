@@ -16,7 +16,7 @@
     ],
     "type": "rich"
   },
-  "activity_embed_1": {
+  "activity_roster_start": {
     "author": {
       "name": "Activity Roster Setup"
     },
@@ -25,23 +25,114 @@
     "fields": [
       {
         "inline": false,
-        "name": ":one: Vanguard",
-        "value": "Vanguard operations, suh as strikes, Nightfalls, and Grandmasters."
+        "name": ":one: Vanguard <:grandmaster:843042055697596417>",
+        "value": "Fight against combatants in three-man Vanguard operations."
       },
       {
         "inline": false,
-        "name": ":two: Crucible",
-        "value": "Crucible activities, such as Control, Trials, and Rumble."
+        "name": ":two: Crucible <:crucible:843041980770025492>",
+        "value": "Test your might against other Guardians in the Crucible or Trials."
       },
       {
         "inline": false,
-        "name": ":three: Raids",
-        "value": "6-man raid activities."
+        "name": ":three: Gambit <:gambit:843041954900082698>",
+        "value": "Battle combatants and other Guardians in the quasi-legal engagements of the Drifter's Gambit."
       },
       {
         "inline": false,
-        "name": ":four: Seasonal",
-        "value": "Seasonal activities, such as Wrathborn Hunts, Battlegrounds, and Override."
+        "name": ":four: Raids <:vault_of_glass:843040539045920799>",
+        "value": "Confront the enemies of humanity in a six-man fireteam raid activity."
+      },
+      {
+        "inline": false,
+        "name": ":five: Seasonal <:splicer:843042032079339550>",
+        "value": "Take part in seasonal activities; fight for the allies of humanity and for the Last City."
+      }
+    ],
+    "type": "rich"
+  },
+
+  "activity_roster_vanguard": {
+    "author": {
+      "name": "Vanguard Activities"
+    },
+    "color": 870305,
+    "description": "Fight against combatants in three-man Vanguard operations.\nPlease select an activity.",
+    "fields": [
+      {
+        "inline": false,
+        "name": ":one: Playlist Strikes",
+        "value": "Create a team of three Guardians and take on the Strike playlist."
+      },
+      {
+        "inline": false,
+        "name": ":two: Nightfall: The Ordeal",
+        "value": "Defeat the enemies of humanity in the weekly Nightfall."
+      },
+      {
+        "inline": false,
+        "name": ":three: Grandmaster Nightfall",
+        "value": "Work your way through the hardest missions the Vanguard has to offer. Good luck."
+      }
+    ],
+    "type": "rich"
+  },
+  "activity_roster_crucible": {
+    "author": {
+      "name": "Crucible Playlists"
+    },
+    "color": 13840175,
+    "desciption": "Test your might against other Guardians in the Crucible or Trials.",
+    "fields": [
+      {
+        "inline": false,
+        "name": ":one: Control",
+        "value": "Capture and defend zones in a 6v6 PvP activity."
+      },
+      {
+        "inline": false,
+        "name": ":two: Weekly Rotation",
+        "value": "Join the 3v3 or 6v6 rotating gamemodes such as Mayhem or Momentum Control"
+      },
+      {
+        "inline": false,
+        "name": ":three: Trials of Osiris",
+        "value": "Engage in the card-based 3v3 Trials of Osiris and earn exclusive weapons and Flawless rewards."
+      },
+      {
+        "inline": false,
+        "name": ":four: Private Match",
+        "value": "Invite others to play a private Crucible match, with a gamemode and map of your choosing."
+      }
+    ],
+    "type": "rich"
+  },
+  "activity_roster_raid": {
+    "author": {
+      "name": "Raids"
+    },
+    "color": 16485376,
+    "description": "Confront the enemies of humanity in a six-man fireteam raid activity.",
+    "fields": [
+      {
+        "inline": false,
+        "name": ":one: Vault of Glass",
+        "value": "Make your own fate by fighting through the underbelly of Venus to defeat Atheon, Time's Conflux."
+      },
+      {
+        "inline": false,
+        "name": ":two: Deep Stone Crypt",
+        "value": "Uncover the legacy of the Bray family, and defend Europa against the the remnants of House Salvation."
+      },
+      {
+        "inline": false,
+        "name": ":three: Garden of Salvation",
+        "value": "Follow the Darkness's signal into the Black Garden to defeat the Sanctified Mind, Sol Inherent."
+      },
+      {
+        "inline": false,
+        "name": ":four: Last Wish",
+        "value": "Venture into the heart of the Dreaming City to free Savathûn's captives and slay the Taken Ahamkara, Riven of a Thousand Voices."
       }
     ],
     "type": "rich"
