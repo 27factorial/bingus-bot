@@ -14,14 +14,14 @@ use std::collections::{HashMap, HashSet};
 use std::path::{Path, PathBuf};
 use tokio::fs::OpenOptions;
 
-async fn initialize_emoji_map(handler: &Handler, ctx: &Context) {
+async fn initialize_emoji_map(paths: &JsonPaths, ctx: &Context) {
     let mut type_map = ctx.data.write().await;
 
     let open = OpenOptions::new()
         .read(true)
         .write(true)
         .create(true)
-        .open(&handler.assets_file_path)
+        .open(&paths.assets)
         .await;
 
     match open {
@@ -55,21 +55,26 @@ async fn initialize_emoji_map(handler: &Handler, ctx: &Context) {
         Err(e) => {
             eprintln!(
                 "[ERR] Unable to read assets file {}. Error: {:?}",
-                &handler.assets_file_path.to_string_lossy(),
+                &paths.assets.to_string_lossy(),
                 e
             );
         }
     }
 }
 
-async fn initialize_embed_map(handler: &Handler, ctx: &Context) {
+async fn push_paths(paths: JsonPaths, ctx: &Context) {
+    let mut type_map = ctx.data.write().await;
+    type_map.insert::<data_keys::GetJsonPaths>(paths);
+}
+
+async fn initialize_embed_map(paths: &JsonPaths, ctx: &Context) {
     let mut type_map = ctx.data.write().await;
 
     let open = OpenOptions::new()
         .read(true)
         .write(true)
         .create(true)
-        .open(&handler.embeds_file_path)
+        .open(&paths.embeds)
         .await;
 
     match open {
@@ -89,7 +94,7 @@ async fn initialize_embed_map(handler: &Handler, ctx: &Context) {
         Err(e) => {
             eprintln!(
                 "[ERR] Unable to read embeds file {}. Error: {:?}",
-                &handler.embeds_file_path.to_string_lossy(),
+                &paths.embeds.to_string_lossy(),
                 e
             );
         }
@@ -101,6 +106,11 @@ struct Handler {
     embeds_file_path: PathBuf,
 }
 
+pub struct JsonPaths {
+    assets: PathBuf,
+    embeds: PathBuf,
+}
+
 #[serenity::async_trait]
 impl EventHandler for Handler {
     async fn ready(&self, ctx: Context, ready: Ready) {
@@ -108,8 +118,14 @@ impl EventHandler for Handler {
         println!("Initializing bot data.");
         eprintln!("Ready info: {:?}", ready);
 
-        initialize_emoji_map(self, &ctx).await;
-        initialize_embed_map(self, &ctx).await;
+        let paths = JsonPaths {
+            assets: self.assets_file_path.clone(),
+            embeds: self.embeds_file_path.clone(),
+        };
+
+        initialize_emoji_map(&paths, &ctx).await;
+        initialize_embed_map(&paths, &ctx).await;
+        push_paths(paths, &ctx).await;
     }
 }
 
@@ -332,6 +348,7 @@ impl BotBuilder {
 }
 
 pub mod data_keys {
+    use super::JsonPaths;
     use serenity::{
         model::prelude::{Embed, EmojiId},
         prelude::TypeMapKey,
@@ -348,5 +365,11 @@ pub mod data_keys {
 
     impl TypeMapKey for GetEmbedMap {
         type Value = HashMap<String, Embed>;
+    }
+
+    pub struct GetJsonPaths;
+
+    impl TypeMapKey for GetJsonPaths {
+        type Value = JsonPaths;
     }
 }
