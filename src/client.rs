@@ -118,9 +118,11 @@ impl EventHandler for Handler {
             embeds: self.embeds_file_path.clone(),
         };
 
-        initialize_emoji_map(&paths, &ctx).await;
-        initialize_embed_map(&paths, &ctx).await;
-        push_paths(paths, &ctx).await;
+        let mut type_map = ctx.data.write().await;
+
+        initialize_emoji_map(&paths, &mut type_map).await;
+        initialize_embed_map(&paths, &mut type_map).await;
+        push_paths(paths, &mut type_map).await;
     }
 }
 
