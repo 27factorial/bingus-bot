@@ -96,11 +96,13 @@ async fn push_paths(paths: JsonPaths, type_map: &mut TypeMap) {
     type_map.insert::<data_keys::GetJsonPaths>(paths);
 }
 
+#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Default)]
 struct Handler {
     assets_file_path: PathBuf,
     embeds_file_path: PathBuf,
 }
 
+#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Default)]
 pub struct JsonPaths {
     assets: PathBuf,
     embeds: PathBuf,
@@ -126,6 +128,7 @@ impl EventHandler for Handler {
     }
 }
 
+#[derive(Default)]
 pub struct BotClient {
     token: String,
     event_handler: Handler,
@@ -147,6 +150,7 @@ impl BotClient {
     }
 }
 
+#[derive(Clone, Default)]
 pub struct BotBuilder {
     token: String,
     owner_ids: Option<HashSet<UserId>>,
@@ -352,18 +356,21 @@ pub mod data_keys {
     };
     use std::collections::HashMap;
 
+    #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Default)]
     pub struct GetEmojiMap;
 
     impl TypeMapKey for GetEmojiMap {
         type Value = HashMap<String, EmojiId>;
     }
 
+    #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Default)]
     pub struct GetEmbedMap;
 
     impl TypeMapKey for GetEmbedMap {
         type Value = HashMap<String, Embed>;
     }
 
+    #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Default)]
     pub struct GetJsonPaths;
 
     impl TypeMapKey for GetJsonPaths {
