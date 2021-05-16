@@ -14,7 +14,7 @@ use std::collections::{HashMap, HashSet};
 use std::path::{Path, PathBuf};
 use tokio::fs::OpenOptions;
 
-async fn initialize_emoji_map(paths: &JsonPaths, ctx: &Context) {
+pub async fn initialize_emoji_map(paths: &JsonPaths, ctx: &Context) {
     let mut type_map = ctx.data.write().await;
 
     let open = OpenOptions::new()
@@ -62,12 +62,7 @@ async fn initialize_emoji_map(paths: &JsonPaths, ctx: &Context) {
     }
 }
 
-async fn push_paths(paths: JsonPaths, ctx: &Context) {
-    let mut type_map = ctx.data.write().await;
-    type_map.insert::<data_keys::GetJsonPaths>(paths);
-}
-
-async fn initialize_embed_map(paths: &JsonPaths, ctx: &Context) {
+pub async fn initialize_embed_map(paths: &JsonPaths, ctx: &Context) {
     let mut type_map = ctx.data.write().await;
 
     let open = OpenOptions::new()
@@ -99,6 +94,11 @@ async fn initialize_embed_map(paths: &JsonPaths, ctx: &Context) {
             );
         }
     }
+}
+
+async fn push_paths(paths: JsonPaths, ctx: &Context) {
+    let mut type_map = ctx.data.write().await;
+    type_map.insert::<data_keys::GetJsonPaths>(paths);
 }
 
 struct Handler {
