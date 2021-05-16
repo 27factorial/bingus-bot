@@ -7,16 +7,14 @@ use serenity::{
         gateway::Ready,
         prelude::{Embed, EmojiId, Message, UserId},
     },
-    prelude::{Context, EventHandler},
+    prelude::{Context, EventHandler, TypeMap},
     Client,
 };
 use std::collections::{HashMap, HashSet};
 use std::path::{Path, PathBuf};
 use tokio::fs::OpenOptions;
 
-pub async fn initialize_emoji_map(paths: &JsonPaths, ctx: &Context) {
-    let mut type_map = ctx.data.write().await;
-
+pub async fn initialize_emoji_map(paths: &JsonPaths, type_map: &mut TypeMap) {
     let open = OpenOptions::new()
         .read(true)
         .write(true)
@@ -62,9 +60,7 @@ pub async fn initialize_emoji_map(paths: &JsonPaths, ctx: &Context) {
     }
 }
 
-pub async fn initialize_embed_map(paths: &JsonPaths, ctx: &Context) {
-    let mut type_map = ctx.data.write().await;
-
+pub async fn initialize_embed_map(paths: &JsonPaths, type_map: &mut TypeMap) {
     let open = OpenOptions::new()
         .read(true)
         .write(true)
@@ -96,8 +92,7 @@ pub async fn initialize_embed_map(paths: &JsonPaths, ctx: &Context) {
     }
 }
 
-async fn push_paths(paths: JsonPaths, ctx: &Context) {
-    let mut type_map = ctx.data.write().await;
+async fn push_paths(paths: JsonPaths, type_map: &mut TypeMap) {
     type_map.insert::<data_keys::GetJsonPaths>(paths);
 }
 
