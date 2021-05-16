@@ -13,7 +13,10 @@ use serenity::{
     prelude::Context,
 };
 
-static GROUPS: &'static [&'static CommandGroup] = &[&command::general::GENERAL_GROUP];
+static GROUPS: &'static [&'static CommandGroup] = &[
+    &command::general::GENERAL_GROUP,
+    &command::owner::OWNERSONLY_GROUP,
+];
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
