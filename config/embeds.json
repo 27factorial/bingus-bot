@@ -1,0 +1,19 @@
+{
+  "test1": {
+    "color": 16711935,
+    "description": "This is a test embed",
+    "fields": [
+      {
+        "inline": false,
+        "name": "field 1",
+        "value": "This is a non-inlined field."
+      },
+      {
+        "inline": true,
+        "name": "field 2",
+        "value": "this is an inlined field"
+      }
+    ],
+    "type": "rich"
+  }
+}

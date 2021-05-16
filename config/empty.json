@@ -1,0 +1,49 @@
+{
+  "empty_embed": {
+    "author": {
+      "icon_url": "",
+      "name": "",
+      "proxy_icon_url": "",
+      "url": ""
+    },
+    "color": 0,
+    "description": "",
+    "fields": [
+      {
+        "inline": false,
+        "name": "",
+        "value": ""
+      }
+    ],
+    "footer": {
+      "icon_url": "",
+      "proxy_icon_url": "",
+      "text": ""
+    },
+    "image": {
+      "height": 0,
+      "proxy_url": "",
+      "url": "",
+      "width": 0
+    },
+    "type": "rich",
+    "provider": {
+      "name": "",
+      "url": ""
+    },
+    "thumbnail": {
+      "height": 0,
+      "proxy_url": "",
+      "url": "",
+      "width": 0
+    },
+    "timestamp": "",
+    "title": "",
+    "url": "",
+    "video": {
+      "height": 0,
+      "url": "",
+      "width": 0
+    }
+  }
+}
