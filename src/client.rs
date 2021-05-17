@@ -1,4 +1,3 @@
-use crate::config::BotConfig;
 use futures::future::BoxFuture;
 use serde_json::{self as json, Map as JsonMap, Value as JsonValue};
 use serenity::{
@@ -13,6 +12,9 @@ use serenity::{
 use std::collections::{HashMap, HashSet};
 use std::path::{Path, PathBuf};
 use tokio::fs::OpenOptions;
+
+use crate::command::imp::data_keys;
+use crate::config::BotConfig;
 
 pub async fn initialize_emoji_map(paths: &JsonPaths, type_map: &mut TypeMap) {
     let open = OpenOptions::new()
@@ -345,35 +347,5 @@ impl BotBuilder {
             event_handler,
             framework: framework_with_handler,
         }
-    }
-}
-
-pub mod data_keys {
-    use super::JsonPaths;
-    use serenity::{
-        model::prelude::{Embed, EmojiId},
-        prelude::TypeMapKey,
-    };
-    use std::collections::HashMap;
-
-    #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Default)]
-    pub struct GetEmojiMap;
-
-    impl TypeMapKey for GetEmojiMap {
-        type Value = HashMap<String, EmojiId>;
-    }
-
-    #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Default)]
-    pub struct GetEmbedMap;
-
-    impl TypeMapKey for GetEmbedMap {
-        type Value = HashMap<String, Embed>;
-    }
-
-    #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Default)]
-    pub struct GetJsonPaths;
-
-    impl TypeMapKey for GetJsonPaths {
-        type Value = JsonPaths;
     }
 }
