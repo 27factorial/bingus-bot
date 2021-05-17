@@ -35,7 +35,7 @@ impl FromStr for ConfigPath {
     type Err = Infallible;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let buf = PathBuf::from(s.to_string());
+        let buf = PathBuf::from(s);
 
         Ok(Self { buf })
     }
