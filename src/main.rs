@@ -39,7 +39,7 @@ async fn main() -> anyhow::Result<()> {
 
 #[hook]
 async fn handle_normal(ctx: &Context, msg: &Message) {
-    if msg.content.contains("sompies") {
+    if msg.content.to_ascii_lowercase().contains("sompies") {
         let res = msg
             .channel_id
             .say(&ctx, "sompies to be removed fro mgame")
