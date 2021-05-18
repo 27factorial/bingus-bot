@@ -1,3 +1,5 @@
+use serenity::builder::CreateEmbed;
+use serenity::model::misc::Mention;
 use serenity::{
     framework::standard::{
         macros::{command, group, help},
@@ -7,9 +9,8 @@ use serenity::{
     prelude::Context,
 };
 
-use crate::client::{self, data_keys};
-use serenity::builder::CreateEmbed;
-use serenity::model::misc::Mention;
+use crate::client;
+use crate::command::imp::data_keys;
 
 #[group]
 #[owners_only]
