@@ -13,7 +13,8 @@ use std::collections::{HashMap, HashSet};
 use std::path::{Path, PathBuf};
 use tokio::fs::OpenOptions;
 
-use crate::command::imp::data_keys;
+use crate::command::{data::EmbedWithReactions, imp::data_keys};
+
 use crate::config::BotConfig;
 
 pub async fn initialize_emoji_map(paths: &JsonPaths, type_map: &mut TypeMap) {
@@ -72,7 +73,8 @@ pub async fn initialize_embed_map(paths: &JsonPaths, type_map: &mut TypeMap) {
 
     match open {
         Ok(file) => {
-            let result = json::from_reader::<_, HashMap<String, Embed>>(file.into_std().await);
+            let result =
+                json::from_reader::<_, HashMap<String, EmbedWithReactions>>(file.into_std().await);
 
             match result {
                 Ok(map) => type_map.insert::<data_keys::GetEmbedMap>(map),
