@@ -267,5 +267,39 @@
         "name": "5️⃣"
       }
     ]
+  },
+  "activity_roster_time": {
+    "embed": {
+      "author": {
+        "name": "Activity date and time"
+      },
+      "color": 2171169,
+      "description": "Reply to this message with the date and time that the activity will start.",
+      "fields": [
+        {
+          "inline": false,
+          "name": "Format:",
+          "value": "the date and time should be in the format `mm/dd/yyyy hh:mm am|pm`."
+        },
+        {
+          "inline": false,
+          "name": "Important Note:",
+          "value": "Currently, local time conversion is not supported, and all dates and times will be Eastern Time."
+        }
+      ],
+      "type": "rich"
+    },
+    "reactions": []
+  },
+  "activity_roster_description": {
+    "embed": {
+      "author": {
+        "name": "Activity description"
+      },
+      "color": 2171169,
+      "description": "Click the reply button on this message and type a description for this activity. (Max 1024 characters)",
+      "type": "rich"
+    },
+    "reactions": []
   }
 }

@@ -1,11 +1,9 @@
-use serenity::builder::CreateEmbed;
-use serenity::model::misc::Mention;
 use serenity::{
     framework::standard::{
-        macros::{command, group, help},
-        Args, CommandResult,
+        macros::{command, group},
+        CommandResult,
     },
-    model::channel::{Message, Reaction},
+    model::channel::Message,
     prelude::Context,
 };
 

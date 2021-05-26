@@ -4,7 +4,7 @@ use serenity::{
     framework::standard::{CommandGroup, StandardFramework},
     model::{
         gateway::Ready,
-        prelude::{Embed, EmojiId, Message, UserId},
+        prelude::{EmojiId, Message, UserId},
     },
     prelude::{Context, EventHandler, TypeMap},
     Client,
