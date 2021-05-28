@@ -88,10 +88,14 @@ impl GuildData {
 }
 
 #[non_exhaustive]
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Default)]
 pub enum ActivityError {
     FireteamFull,
     MemberAlreadyInFireteam,
     MemberNotInFireteam,
+    AlternateFull,
+    MemberAlreadyInAlternate,
+    MemberNotInAlternate,
 }
 
 #[derive(Clone, Debug)]
@@ -101,8 +105,10 @@ pub struct Activity {
     pub date: String,
     pub id: u64,
     pub size: u8,
+    pub creator: UserId,
     pub embed_msg: Message,
     pub members: HashSet<UserId>,
+    pub alternate: Vec<UserId>,
 }
 
 impl Activity {
@@ -112,6 +118,7 @@ impl Activity {
         date: S,
         id: u64,
         size: u8,
+        creator: UserId,
         embed_msg: Message,
     ) -> Self {
         let name = name.to_string();
@@ -124,8 +131,10 @@ impl Activity {
             date,
             id,
             size,
+            creator,
             embed_msg,
             members: HashSet::with_capacity(size as usize),
+            alternate: Vec::with_capacity(size as usize),
         }
     }
 
@@ -141,11 +150,39 @@ impl Activity {
         }
     }
 
+    pub fn add_member_alt(&mut self, member: UserId) -> Result<(), ActivityError> {
+        if self.alternate.len() < self.size as usize {
+            if !self.alternate.contains(&member) {
+                self.alternate.push(member);
+                Ok(())
+            } else {
+                Err(ActivityError::MemberAlreadyInFireteam)
+            }
+        } else {
+            Err(ActivityError::AlternateFull)
+        }
+    }
+
     pub fn remove_member(&mut self, member: UserId) -> Result<(), ActivityError> {
         if self.members.remove(&member) {
             Ok(())
         } else {
             Err(ActivityError::MemberNotInFireteam)
+        }
+    }
+
+    pub fn remove_member_alt(&mut self, member: UserId) -> Result<(), ActivityError> {
+        let idx = self
+            .alternate
+            .iter()
+            .position(|other_member| member == *other_member);
+
+        match idx {
+            Some(idx) => {
+                self.alternate.remove(idx);
+                Ok(())
+            }
+            None => Err(ActivityError::MemberNotInAlternate),
         }
     }
 
@@ -167,7 +204,25 @@ impl Activity {
                 })
                 .collect::<String>()
         } else {
-            "None".into()
+            String::from("None")
+        };
+
+        let alternate_string = if !self.alternate.is_empty() {
+            self.alternate
+                .iter()
+                .copied()
+                .enumerate()
+                .map(|(idx, id)| {
+                    if idx == 0 {
+                        Mention::from(id).to_string()
+                    } else {
+                        let mention = Mention::from(id).to_string();
+                        format!(", {}", mention)
+                    }
+                })
+                .collect::<String>()
+        } else {
+            String::from("None")
         };
 
         embed
@@ -178,9 +233,16 @@ impl Activity {
             .field("Activity ID:", self.id, true)
             .field("Description:", &self.description, false)
             .field("Fireteam Members:", members_string, false)
+            .field("Alternate Members:", alternate_string, false)
+            .field(
+                "Important Information:",
+                "Bingus will ping you in this channel when your activity is ready. \
+                 Please keep this channel unmuted.",
+                false,
+            )
             .footer(|footer| {
                 footer.text(format!(
-                    "Use the command `activity join {}` to join this activity.",
+                    "Use the command `~activity join {}` to join this activity.",
                     self.id
                 ))
             });
