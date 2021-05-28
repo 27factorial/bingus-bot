@@ -151,15 +151,19 @@ impl Activity {
     }
 
     pub fn add_member_alt(&mut self, member: UserId) -> Result<(), ActivityError> {
-        if self.alternate.len() < self.size as usize {
-            if !self.alternate.contains(&member) {
-                self.alternate.push(member);
-                Ok(())
+        if !self.members.contains(&member) {
+            if self.alternate.len() < self.size as usize {
+                if !self.alternate.contains(&member) {
+                    self.alternate.push(member);
+                    Ok(())
+                } else {
+                    Err(ActivityError::MemberAlreadyInAlternate)
+                }
             } else {
-                Err(ActivityError::MemberAlreadyInAlternate)
+                Err(ActivityError::AlternateFull)
             }
         } else {
-            Err(ActivityError::AlternateFull)
+            Err(ActivityError::MemberAlreadyInFireteam)
         }
     }
 
