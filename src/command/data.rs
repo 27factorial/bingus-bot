@@ -88,7 +88,7 @@ impl GuildData {
 }
 
 #[non_exhaustive]
-#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Default)]
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
 pub enum ActivityError {
     FireteamFull,
     MemberAlreadyInFireteam,
