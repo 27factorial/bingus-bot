@@ -16,6 +16,7 @@ use serenity::{
 static GROUPS: &'static [&'static CommandGroup] = &[
     &command::general::GENERAL_GROUP,
     &command::owner::OWNERSONLY_GROUP,
+    &command::admin::ADMINSONLY_GROUP,
 ];
 
 #[tokio::main]
