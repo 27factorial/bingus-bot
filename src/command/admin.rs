@@ -15,7 +15,7 @@ use serenity::model::prelude::UserId;
 #[owners_only]
 #[prefix("admin")]
 #[commands(activity_manage)]
-struct OwnersOnly;
+struct AdminsOnly;
 
 #[command]
 async fn activity_manage(ctx: &Context, original_msg: &Message, args: Args) -> CommandResult {
