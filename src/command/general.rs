@@ -508,6 +508,7 @@ async fn activity_alt(ctx: &Context, original_msg: &Message, mut args: Args) -> 
         Err(ActivityError::MemberAlreadyInAlternate) => {
             Some("You are already in that alternate fireteam.")
         }
+        Err(ActivityError::MemberAlreadyInFireteam) => Some("You are already in that fireteam."),
         Err(_) => Some("Some other error occurred adding you to the fireteam."),
         Ok(()) => None,
     };
