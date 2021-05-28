@@ -156,7 +156,7 @@ impl Activity {
                 self.alternate.push(member);
                 Ok(())
             } else {
-                Err(ActivityError::MemberAlreadyInFireteam)
+                Err(ActivityError::MemberAlreadyInAlternate)
             }
         } else {
             Err(ActivityError::AlternateFull)
