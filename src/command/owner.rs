@@ -1,19 +1,19 @@
 use serenity::{
     framework::standard::{
         macros::{command, group},
-        CommandResult,
+        Args, CommandResult,
     },
     model::channel::Message,
     prelude::Context,
 };
 
 use crate::client;
-use crate::command::imp::data_keys;
+use crate::command::imp::{self, data_keys};
 
 #[group]
 #[owners_only]
-#[prefix("admin")]
-#[commands(reload_json)]
+#[prefix("owner")]
+#[commands(reload_json, add_admins, remove_admins)]
 struct OwnersOnly;
 
 #[command]
@@ -38,5 +38,55 @@ async fn reload_json(ctx: &Context, original_msg: &Message) -> CommandResult {
         .channel_id
         .say(ctx, "JSON values reloaded.")
         .await?;
+    Ok(())
+}
+
+#[command]
+async fn add_admins(ctx: &Context, original_msg: &Message, mut args: Args) -> CommandResult {
+    let mut type_map = ctx.data.write().await;
+    let admins = type_map.entry::<data_keys::GetAdmins>().or_default();
+
+    for (pos, result) in args.iter::<u64>().enumerate() {
+        match result {
+            Ok(id) => {
+                admins.insert(id.into());
+            }
+            Err(_) => {
+                imp::send_error_message(
+                    ctx,
+                    original_msg,
+                    format!("Invalid user ID at position {}", pos),
+                )
+                .await?;
+            }
+        }
+    }
+
+    original_msg.react(ctx, '👍').await?;
+    Ok(())
+}
+
+#[command]
+async fn remove_admins(ctx: &Context, original_msg: &Message, mut args: Args) -> CommandResult {
+    let mut type_map = ctx.data.write().await;
+    let admins = type_map.entry::<data_keys::GetAdmins>().or_default();
+
+    for (pos, result) in args.iter::<u64>().enumerate() {
+        match result {
+            Ok(id) => {
+                admins.remove(&id.into());
+            }
+            Err(_) => {
+                imp::send_error_message(
+                    ctx,
+                    original_msg,
+                    format!("Invalid user ID at position {}", pos),
+                )
+                .await?;
+            }
+        }
+    }
+
+    original_msg.react(ctx, '👍').await?;
     Ok(())
 }
