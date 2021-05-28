@@ -165,9 +165,12 @@ fn max_day_value(month: u32) -> u32 {
 }
 
 pub mod data_keys {
-    use std::collections::HashMap;
+    use std::collections::{HashMap, HashSet};
 
-    use serenity::{model::prelude::EmojiId, prelude::TypeMapKey};
+    use serenity::{
+        model::prelude::{EmojiId, UserId},
+        prelude::TypeMapKey,
+    };
 
     use crate::{client::JsonPaths, command::data::EmbedWithReactions, command::data::GuildData};
 
@@ -197,5 +200,12 @@ pub mod data_keys {
 
     impl TypeMapKey for GetGuildData {
         type Value = HashMap<u64, GuildData>;
+    }
+
+    #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Default)]
+    pub struct GetAdmins;
+
+    impl TypeMapKey for GetAdmins {
+        type Value = HashSet<UserId>;
     }
 }
