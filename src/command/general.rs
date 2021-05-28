@@ -53,16 +53,16 @@ async fn activity(ctx: &Context, original_msg: &Message, args: Args) -> CommandR
     match subcommand {
         "create" => activity_create(ctx, original_msg).await,
         "join" => activity_join(ctx, original_msg, args).await,
+        "alt" => activity_alt(ctx, original_msg, args).await,
         "leave" => activity_leave(ctx, original_msg, args).await,
         "delete" => activity_delete(ctx, original_msg, args).await,
         _ => {
-            original_msg
-                .channel_id
-                .say(
-                    &ctx,
-                    "Invalid subcommand. Valid subcommands are `create`, `edit`, and `delete`.",
-                )
-                .await?;
+            imp::send_error_message(
+                ctx,
+                original_msg,
+                "Invalid subcommand. Valid subcommands are `create`, `edit`, and `delete`.",
+            )
+            .await?;
             Ok(())
         }
     }
@@ -321,6 +321,7 @@ async fn activity_create(ctx: &Context, original_msg: &Message) -> CommandResult
                     date_time_str,
                     activity_id,
                     size,
+                    original_msg.author.id,
                     data.message.clone(),
                 );
 
@@ -355,14 +356,25 @@ async fn activity_create(ctx: &Context, original_msg: &Message) -> CommandResult
                     if let Some(guild_data) = guild_map.get_mut(&id.0) {
                         if let Some(activity) = guild_data.remove_activity(activity_id) {
                             if !activity.members.is_empty() {
+                                let member_count = activity.members.len();
+
                                 let mention_string = activity
                                     .members
                                     .into_iter()
-                                    .map(|user| Mention::from(user).to_string())
+                                    .enumerate()
+                                    .map(|(idx, user)| {
+                                        if idx == 0 {
+                                            Mention::from(user).to_string()
+                                        } else if idx == member_count - 1 {
+                                            format!(", and {}", Mention::from(user))
+                                        } else {
+                                            format!(", {}", Mention::from(user))
+                                        }
+                                    })
                                     .collect::<String>();
 
                                 let content = format!(
-                                    "Hey {}! Your activity: {} is starting now.",
+                                    "Hey {}! {} is starting now. Good luck and have fun!",
                                     mention_string, activity.name
                                 );
 
@@ -450,6 +462,78 @@ async fn activity_join(ctx: &Context, original_msg: &Message, mut args: Args) ->
     Ok(())
 }
 
+async fn activity_alt(ctx: &Context, original_msg: &Message, mut args: Args) -> CommandResult {
+    let activity_id_opt = args
+        .advance()
+        .current()
+        .map(|string| string.parse::<u64>().ok())
+        .flatten();
+
+    let activity_id = match activity_id_opt {
+        Some(id) => id,
+        None => {
+            imp::send_error_message(ctx, original_msg, "Invalid activity ID.").await?;
+            return Ok(());
+        }
+    };
+
+    let guild_id = match original_msg.guild_id {
+        Some(id) => id,
+        None => {
+            imp::send_error_message(ctx, original_msg, "This command is not supported in DMs.")
+                .await?;
+            return Ok(());
+        }
+    };
+
+    let mut type_map = ctx.data.write().await;
+
+    let guild_data_map = type_map.entry::<data_keys::GetGuildData>().or_default();
+    let guild_data = guild_data_map
+        .entry(guild_id.0)
+        .or_insert_with(|| GuildData::new(guild_id));
+
+    let activity = match guild_data.get_activity_mut(activity_id) {
+        Some(activity) => activity,
+        None => {
+            imp::send_error_message(ctx, original_msg, "Invalid activity ID.").await?;
+            return Ok(());
+        }
+    };
+
+    let error = match activity.add_member_alt(original_msg.author.id) {
+        Err(ActivityError::AlternateFull) => {
+            Some("The alternate fireteam for that activity is already full.")
+        }
+        Err(ActivityError::MemberAlreadyInAlternate) => {
+            Some("You are already in that alternate fireteam.")
+        }
+        Err(_) => Some("Some other error occurred adding you to the fireteam."),
+        Ok(()) => None,
+    };
+
+    if let Some(msg) = error {
+        imp::send_error_message(ctx, original_msg, msg).await?;
+        return Ok(());
+    }
+
+    let activity_embed = activity.as_create_embed(0x212121);
+
+    activity
+        .embed_msg
+        .edit(ctx, |msg| {
+            msg.embed(|embed| {
+                *embed = activity_embed;
+                embed
+            })
+        })
+        .await?;
+
+    original_msg.delete(ctx).await?;
+
+    Ok(())
+}
+
 async fn activity_leave(ctx: &Context, original_msg: &Message, mut args: Args) -> CommandResult {
     let activity_id_opt = args
         .advance()
@@ -490,8 +574,13 @@ async fn activity_leave(ctx: &Context, original_msg: &Message, mut args: Args) -
     };
 
     let error = match activity.remove_member(original_msg.author.id) {
-        Err(ActivityError::MemberNotInFireteam) => Some("You are not in that activity's fireteam."),
-        Err(_) => Some("Some other error occurred removing you from the fireteam."),
+        Err(_) => match activity.remove_member_alt(original_msg.author.id) {
+            Err(ActivityError::MemberNotInAlternate) => {
+                Some("You are not in that activity's fireteam.")
+            }
+            Err(_) => Some("Some other error occurred removing you from the fireteam."),
+            Ok(()) => None,
+        },
         Ok(()) => None,
     };
 
@@ -517,11 +606,62 @@ async fn activity_leave(ctx: &Context, original_msg: &Message, mut args: Args) -
     Ok(())
 }
 
-async fn activity_delete(
-    _ctx: &Context,
-    _original_msg: &Message,
-    mut _args: Args,
-) -> CommandResult {
+async fn activity_delete(ctx: &Context, original_msg: &Message, mut args: Args) -> CommandResult {
+    let activity_id_opt = args
+        .advance()
+        .current()
+        .map(|string| string.parse::<u64>().ok())
+        .flatten();
+
+    let activity_id = match activity_id_opt {
+        Some(id) => id,
+        None => {
+            imp::send_error_message(ctx, original_msg, "Invalid activity ID.").await?;
+            return Ok(());
+        }
+    };
+
+    let guild_id = match original_msg.guild_id {
+        Some(id) => id,
+        None => {
+            imp::send_error_message(ctx, original_msg, "This command is not supported in DMs.")
+                .await?;
+            return Ok(());
+        }
+    };
+
+    let mut type_map = ctx.data.write().await;
+
+    let guild_data_map = type_map.entry::<data_keys::GetGuildData>().or_default();
+    let guild_data = guild_data_map
+        .entry(guild_id.0)
+        .or_insert_with(|| GuildData::new(guild_id));
+
+    let creator_id = match guild_data.get_activity(activity_id) {
+        Some(activity) => activity.creator,
+        None => {
+            imp::send_error_message(ctx, original_msg, "Invalid activity ID.").await?;
+            return Ok(());
+        }
+    };
+
+    if original_msg.author.id == creator_id {
+        let activity_opt = guild_data.remove_activity(activity_id);
+
+        if let Some(activity) = activity_opt {
+            activity.embed_msg.delete(ctx).await?;
+            original_msg
+                .channel_id
+                .say(
+                    ctx,
+                    format!("Deleted activity {}: {}.", activity.id, activity.name),
+                )
+                .await?;
+        }
+    } else {
+        imp::send_error_message(ctx, original_msg, "You cannot delete that activity.").await?;
+    }
+
     Ok(())
 }
 
