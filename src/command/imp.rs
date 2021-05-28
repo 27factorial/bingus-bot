@@ -4,7 +4,7 @@ use chrono::{DateTime, FixedOffset, NaiveDate, NaiveDateTime, NaiveTime};
 use serenity::builder::CreateEmbed;
 use serenity::framework::standard::CommandResult;
 use serenity::model::channel::Embed;
-use serenity::model::prelude::Message;
+use serenity::model::prelude::{Message, UserId};
 use serenity::prelude::Context;
 
 pub(crate) fn create_embed(embed: &Embed) -> CreateEmbed {
@@ -35,6 +35,16 @@ pub(crate) async fn send_error_message<D: Display>(
 //
 //     Ok(())
 // }
+
+pub(crate) async fn is_admin(ctx: &Context, user: UserId) -> serenity::Result<bool> {
+    let type_map = ctx.data.read().await;
+    let admins = type_map.get::<data_keys::GetAdmins>();
+
+    match admins {
+        Some(set) => Ok(set.contains(&user)),
+        None => Ok(false),
+    }
+}
 
 pub(crate) fn parse_date_time(date_time_str: &str) -> Option<(DateTime<FixedOffset>, String)> {
     let mut split_by_space = date_time_str.split(" ");
