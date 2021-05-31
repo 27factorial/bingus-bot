@@ -139,14 +139,30 @@ impl Activity {
     }
 
     pub fn add_member(&mut self, member: UserId) -> Result<(), ActivityError> {
-        if self.members.len() < self.size as usize {
-            if self.members.insert(member) {
-                Ok(())
+        if !self.alternate.contains(&member) {
+            if self.members.len() < self.size as usize {
+                if self.members.insert(member) {
+                    Ok(())
+                } else {
+                    Err(ActivityError::MemberAlreadyInFireteam)
+                }
             } else {
-                Err(ActivityError::MemberAlreadyInFireteam)
+                Err(ActivityError::FireteamFull)
             }
         } else {
-            Err(ActivityError::FireteamFull)
+            let idx = self
+                .alternate
+                .iter()
+                .position(|other_member| member == *other_member);
+
+            match idx {
+                Some(idx) => {
+                    self.alternate.remove(idx);
+                    self.members.insert(member);
+                    Ok(())
+                }
+                None => Err(ActivityError::MemberNotInAlternate),
+            }
         }
     }
 
@@ -163,7 +179,13 @@ impl Activity {
                 Err(ActivityError::AlternateFull)
             }
         } else {
-            Err(ActivityError::MemberAlreadyInFireteam)
+            if self.alternate.len() < self.size as usize {
+                self.members.remove(&member);
+                self.alternate.push(member);
+                Ok(())
+            } else {
+                Err(ActivityError::AlternateFull)
+            }
         }
     }
 
