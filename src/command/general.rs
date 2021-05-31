@@ -434,8 +434,11 @@ async fn activity_join(ctx: &Context, original_msg: &Message, mut args: Args) ->
     };
 
     let error = match activity.add_member(original_msg.author.id) {
-        Err(ActivityError::FireteamFull) => Some("The fireteam for that activity is already full."),
         Err(ActivityError::MemberAlreadyInFireteam) => Some("You are already in that fireteam."),
+        Err(ActivityError::FireteamFull) => Some("The fireteam for that activity is already full."),
+        Err(ActivityError::MemberNotInAlternate) => {
+            Some("Attempted to move you to the fireteam, but you were not an alternate. Please try again.")
+        }
         Err(_) => Some("Some other error occurred adding you to the fireteam."),
         Ok(()) => None,
     };
@@ -502,13 +505,12 @@ async fn activity_alt(ctx: &Context, original_msg: &Message, mut args: Args) -> 
     };
 
     let error = match activity.add_member_alt(original_msg.author.id) {
-        Err(ActivityError::AlternateFull) => {
-            Some("The alternate fireteam for that activity is already full.")
-        }
         Err(ActivityError::MemberAlreadyInAlternate) => {
             Some("You are already in that alternate fireteam.")
         }
-        Err(ActivityError::MemberAlreadyInFireteam) => Some("You are already in that fireteam."),
+        Err(ActivityError::AlternateFull) => {
+            Some("The alternate fireteam for that activity is already full.")
+        }
         Err(_) => Some("Some other error occurred adding you to the fireteam."),
         Ok(()) => None,
     };

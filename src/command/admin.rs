@@ -108,10 +108,11 @@ async fn activity_manage_add(
     };
 
     let error = match activity.add_member(user_id) {
-        Err(ActivityError::FireteamFull) => Some("The fireteam for that activity is already full."),
         Err(ActivityError::MemberAlreadyInFireteam) => {
             Some("That user is already in that fireteam.")
         }
+        Err(ActivityError::FireteamFull) => Some("The fireteam for that activity is already full."),
+        Err(ActivityError::MemberNotInAlternate) => Some("Attempted to move that user to the fireteam, but they were not an alternate. Please try again."),
         Err(_) => Some("Some other error occurred adding that user to the fireteam."),
         Ok(()) => None,
     };
@@ -195,11 +196,11 @@ async fn activity_manage_alt(
     };
 
     let error = match activity.add_member_alt(user_id) {
-        Err(ActivityError::AlternateFull) => {
-            Some("The alternate fireteam for that activity is already full.")
-        }
         Err(ActivityError::MemberAlreadyInAlternate) => {
             Some("That user are already in that alternate fireteam.")
+        }
+        Err(ActivityError::AlternateFull) => {
+            Some("The alternate fireteam for that activity is already full.")
         }
         Err(_) => Some("Some other error occurred adding that user to the fireteam."),
         Ok(()) => None,
