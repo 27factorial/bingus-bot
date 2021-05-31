@@ -94,7 +94,7 @@ async fn activity_create(ctx: &Context, original_msg: &Message) -> CommandResult
                 .send_and_await_reaction(
                     ctx,
                     original_msg.channel_id,
-                    Some(Duration::from_secs(30)),
+                    Some(Duration::from_secs(120)),
                     Some(original_msg.author.id),
                     "activity_roster_start".into(),
                 )
@@ -214,7 +214,7 @@ async fn activity_create(ctx: &Context, original_msg: &Message) -> CommandResult
                     Some(message) => message,
                     None => {
                         let error = match data.timeout {
-                            Some(duration) => format!("You did not send a reply in time. Please reply within {} seconds", duration.as_secs()),
+                            Some(duration) => format!("You did not send a reply in time. Please reply within {} minutes", duration.as_secs() / 60),
                             None => "Some other error occurred getting a reply. Please contact Factorial about this.".into(),
                         };
 
@@ -268,7 +268,7 @@ async fn activity_create(ctx: &Context, original_msg: &Message) -> CommandResult
                     Some(message) => message,
                     None => {
                         let error = match data.timeout {
-                            Some(duration) => format!("You did not send a reply in time. Please reply within {} seconds", duration.as_secs()),
+                            Some(duration) => format!("You did not send a reply in time. Please reply within {} minutes", duration.as_secs() / 60),
                             None => "Some other error occurred getting a reply. Please contact Factorial about this.".into(),
                         };
 
