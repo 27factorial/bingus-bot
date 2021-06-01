@@ -275,7 +275,9 @@ impl Activity {
                  Please keep this channel unmuted.",
                 false,
             )
-            .footer(|footer| footer.text("For command documentation, please see https://github.com/27factorial/bingus-bot/blob/main/BOTINFO.md"));
+            .footer(|footer| {
+                footer.text("For command documentation, please see Bingus's GitHub page.")
+            });
 
         embed
     }
