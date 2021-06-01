@@ -50,4 +50,34 @@ async fn handle_normal(ctx: &Context, msg: &Message) {
             eprintln!("Error replying to sompies: {:?}", e);
         }
     }
+
+    if msg.content.to_ascii_lowercase().contains("monke") {
+        let res = msg
+            .channel_id
+            .say(&ctx, "https://youtu.be/XZ5Uv4JKTU4")
+            .await;
+
+        if let Err(e) = res {
+            eprintln!("Error replying to monke {:?}", e);
+        }
+    }
+
+    if msg.content.to_ascii_lowercase().contains("admin") {
+        let res = msg
+            .channel_id
+            .say(&ctx, "https://cdn.discordapp.com/attachments/754073658842153112/763105918899847198/savetweetvid_EVypQCTXgAATeNQ.gif")
+            .await;
+
+        if let Err(e) = res {
+            eprintln!("Error replying to admin {:?}", e);
+        }
+    }
+
+    if msg.content.to_ascii_lowercase().contains("bingus") {
+        let res = msg.channel_id.say(&ctx, "hi").await;
+
+        if let Err(e) = res {
+            eprintln!("Error replying to bingus {:?}", e);
+        }
+    }
 }
