@@ -261,17 +261,21 @@ impl Activity {
             .field("Fireteam Members:", members_string, false)
             .field("Alternate Members:", alternate_string, false)
             .field(
+                "Joining And Leaving:",
+                format!(
+                    "Use ~activity join {}, ~activity alt {}, or ~activity leave {} to \
+                     join, join as an alternate, or leave an activity.",
+                    self.id, self.id, self.id
+                ),
+                false,
+            )
+            .field(
                 "Important Information:",
                 "Bingus will ping you in this channel when your activity is ready. \
                  Please keep this channel unmuted.",
                 false,
             )
-            .footer(|footer| {
-                footer.text(format!(
-                    "Use the command `~activity join {}` to join this activity.",
-                    self.id
-                ))
-            });
+            .footer(|footer| footer.text("For command documentation, please see https://github.com/27factorial/bingus-bot/blob/main/BOTINFO.md"));
 
         embed
     }
