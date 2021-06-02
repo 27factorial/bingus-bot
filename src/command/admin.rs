@@ -14,7 +14,7 @@ use serenity::model::prelude::UserId;
 #[group]
 #[owners_only]
 #[prefix("admin")]
-#[commands(activity_manage)]
+#[commands(activity_manage, nick)]
 struct AdminsOnly;
 
 #[command]
@@ -363,6 +363,47 @@ async fn activity_manage_delete(
                 format!("Deleted activity {}: {}.", activity.id, activity.name),
             )
             .await?;
+    }
+
+    Ok(())
+}
+
+#[command]
+async fn nick(ctx: &Context, original_msg: &Message, mut args: Args) -> CommandResult {
+    let name = args
+        .iter::<String>()
+        .map(|result| {
+            let mut string = result.unwrap();
+            string.push(' ');
+            string
+        })
+        .collect::<String>();
+
+    if (0..33).contains(&name.len()) {
+        let guild_id = match original_msg.guild_id {
+            Some(id) => id,
+            None => {
+                imp::send_error_message(ctx, original_msg, "This command is not supported in DMs.")
+                    .await?;
+                return Ok(());
+            }
+        };
+
+        if name.is_empty() {
+            guild_id.edit_nickname(ctx, None).await?;
+        } else {
+            guild_id.edit_nickname(ctx, Some(&name)).await?;
+        }
+
+        original_msg.react(ctx, '👍').await?;
+    } else {
+        imp::send_error_message(
+            ctx,
+            original_msg,
+            "Please ensure that the bot's new nickname is between \
+            1 and 32 characters long.",
+        )
+        .await?;
     }
 
     Ok(())
