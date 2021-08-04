@@ -36,13 +36,13 @@ pub(crate) async fn send_error_message<D: Display>(
 //     Ok(())
 // }
 
-pub(crate) async fn is_admin(ctx: &Context, user: UserId) -> serenity::Result<bool> {
+pub(crate) async fn is_admin(ctx: &Context, user: UserId) -> bool {
     let type_map = ctx.data.read().await;
     let admins = type_map.get::<data_keys::GetAdmins>();
 
     match admins {
-        Some(set) => Ok(set.contains(&user)),
-        None => Ok(false),
+        Some(set) => set.contains(&user),
+        None => false,
     }
 }
 
