@@ -14,12 +14,12 @@ use serenity::model::prelude::UserId;
 #[group]
 #[owners_only]
 #[prefix("admin")]
-#[commands(activity_manage, nick)]
+#[commands(activity, nick)]
 struct AdminsOnly;
 
 #[command]
-async fn activity_manage(ctx: &Context, original_msg: &Message, args: Args) -> CommandResult {
-    if imp::is_admin(ctx, original_msg.author.id).await? {
+async fn activity(ctx: &Context, original_msg: &Message, args: Args) -> CommandResult {
+    if imp::is_admin(ctx, original_msg.author.id).await {
         let subcommand = match args.current() {
             Some(arg) => arg,
             None => {
@@ -32,10 +32,10 @@ async fn activity_manage(ctx: &Context, original_msg: &Message, args: Args) -> C
         };
 
         match subcommand {
-            "add" => activity_manage_add(ctx, original_msg, args).await?,
-            "alt" => activity_manage_alt(ctx, original_msg, args).await?,
-            "remove" => activity_manage_remove(ctx, original_msg, args).await?,
-            "delete" => activity_manage_delete(ctx, original_msg, args).await?,
+            "add" => admin_activity_add(ctx, original_msg, args).await?,
+            "alt" => admin_activity_alt(ctx, original_msg, args).await?,
+            "remove" => admin_activity_remove(ctx, original_msg, args).await?,
+            "delete" => admin_activity_delete(ctx, original_msg, args).await?,
             _ => {
                 imp::send_error_message(
                     ctx,
@@ -50,7 +50,7 @@ async fn activity_manage(ctx: &Context, original_msg: &Message, args: Args) -> C
     Ok(())
 }
 
-async fn activity_manage_add(
+async fn admin_activity_add(
     ctx: &Context,
     original_msg: &Message,
     mut args: Args,
@@ -138,7 +138,7 @@ async fn activity_manage_add(
     Ok(())
 }
 
-async fn activity_manage_alt(
+async fn admin_activity_alt(
     ctx: &Context,
     original_msg: &Message,
     mut args: Args,
@@ -228,7 +228,7 @@ async fn activity_manage_alt(
     Ok(())
 }
 
-async fn activity_manage_remove(
+async fn admin_activity_remove(
     ctx: &Context,
     original_msg: &Message,
     mut args: Args,
@@ -318,7 +318,7 @@ async fn activity_manage_remove(
     Ok(())
 }
 
-async fn activity_manage_delete(
+async fn admin_activity_delete(
     ctx: &Context,
     original_msg: &Message,
     mut args: Args,
@@ -370,40 +370,46 @@ async fn activity_manage_delete(
 
 #[command]
 async fn nick(ctx: &Context, original_msg: &Message, mut args: Args) -> CommandResult {
-    let name = args
-        .iter::<String>()
-        .map(|result| {
-            let mut string = result.unwrap();
-            string.push(' ');
-            string
-        })
-        .collect::<String>();
+    if imp::is_admin(ctx, original_msg.author.id).await {
+        let name = args
+            .iter::<String>()
+            .map(|result| {
+                let mut string = result.unwrap();
+                string.push(' ');
+                string
+            })
+            .collect::<String>();
 
-    if (0..33).contains(&name.len()) {
-        let guild_id = match original_msg.guild_id {
-            Some(id) => id,
-            None => {
-                imp::send_error_message(ctx, original_msg, "This command is not supported in DMs.")
+        if (0..33).contains(&name.len()) {
+            let guild_id = match original_msg.guild_id {
+                Some(id) => id,
+                None => {
+                    imp::send_error_message(
+                        ctx,
+                        original_msg,
+                        "This command is not supported in DMs.",
+                    )
                     .await?;
-                return Ok(());
+                    return Ok(());
+                }
+            };
+
+            if name.is_empty() {
+                guild_id.edit_nickname(ctx, None).await?;
+            } else {
+                guild_id.edit_nickname(ctx, Some(&name)).await?;
             }
-        };
 
-        if name.is_empty() {
-            guild_id.edit_nickname(ctx, None).await?;
+            original_msg.react(ctx, '👍').await?;
         } else {
-            guild_id.edit_nickname(ctx, Some(&name)).await?;
-        }
-
-        original_msg.react(ctx, '👍').await?;
-    } else {
-        imp::send_error_message(
-            ctx,
-            original_msg,
-            "Please ensure that the bot's new nickname is between \
+            imp::send_error_message(
+                ctx,
+                original_msg,
+                "Please ensure that the bot's new nickname is between \
             1 and 32 characters long.",
-        )
-        .await?;
+            )
+            .await?;
+        }
     }
 
     Ok(())
