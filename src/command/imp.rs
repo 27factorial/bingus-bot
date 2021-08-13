@@ -11,10 +11,6 @@ pub(crate) fn create_embed(embed: &Embed) -> CreateEmbed {
     CreateEmbed::from(embed.clone())
 }
 
-pub(crate) fn create_embed_owned(embed: Embed) -> CreateEmbed {
-    CreateEmbed::from(embed)
-}
-
 pub(crate) async fn send_error_message<D: Display>(
     ctx: &Context,
     original_msg: &Message,
@@ -182,7 +178,7 @@ pub mod data_keys {
         prelude::TypeMapKey,
     };
 
-    use crate::{client::JsonPaths, command::data::EmbedWithReactions, command::data::GuildData};
+    use crate::{client::JsonPaths, command::data::EmbedWithMeta, command::data::GuildData};
 
     #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Default)]
     pub struct GetEmojiMap;
@@ -195,7 +191,7 @@ pub mod data_keys {
     pub struct GetEmbedMap;
 
     impl TypeMapKey for GetEmbedMap {
-        type Value = HashMap<String, EmbedWithReactions>;
+        type Value = HashMap<String, EmbedWithMeta>;
     }
 
     #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Default)]

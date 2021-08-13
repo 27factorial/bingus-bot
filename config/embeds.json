@@ -20,7 +20,7 @@
         {
           "inline": false,
           "name": ":three: Gambit <:gambit:843041954900082698>",
-          "value": "Battle combatants and other Guardians in the quasi-legal engagements of the Drifter's Gambit."
+          "value": "Battle combatants and other Guardians in the Drifter's quasi-legal Gambit."
         },
         {
           "inline": false,
@@ -35,25 +35,39 @@
       ],
       "type": "rich"
     },
-    "reactions": [
+    "meta": [
       {
-        "name": "1️⃣"
+        "name": "1️⃣",
+        "kind": {
+          "SelectNext": "activity_roster_vanguard"
+        }
       },
       {
-        "name": "2️⃣"
+        "name": "2️⃣",
+        "kind": {
+          "SelectNext": "activity_roster_crucible"
+        }
       },
       {
-        "name": "3️⃣"
+        "name": "3️⃣",
+        "kind": {
+          "SelectNext": "activity_roster_gambit"
+        }
       },
       {
-        "name": "4️⃣"
+        "name": "4️⃣",
+        "kind": {
+          "SelectNext": "activity_roster_raid"
+        }
       },
       {
-        "name": "5️⃣"
+        "name": "5️⃣",
+        "kind": {
+          "SelectNext": "activity_roster_seasonal"
+        }
       }
     ]
   },
-
   "activity_roster_vanguard": {
     "embed": {
       "author": {
@@ -80,15 +94,33 @@
       ],
       "type": "rich"
     },
-    "reactions": [
+    "meta": [
       {
-        "name": "1️⃣"
+        "name": "1️⃣",
+        "kind": {
+          "Finished": {
+            "activity_name": "Normal Strikes",
+            "size": 3
+          }
+        }
       },
       {
-        "name": "2️⃣"
+        "name": "2️⃣",
+        "kind": {
+          "Finished": {
+            "activity_name": "Nightfall: The Ordeal",
+            "size": 3
+          }
+        }
       },
       {
-        "name": "3️⃣"
+        "name": "3️⃣",
+        "kind": {
+          "Finished": {
+            "activity_name": "Grandmaster Nightfall",
+            "size": 3
+          }
+        }
       }
     ]
   },
@@ -107,34 +139,100 @@
         },
         {
           "inline": false,
-          "name": ":two: Weekly Rotation",
-          "value": "Join the 3v3 or 6v6 rotating gamemodes such as Mayhem or Momentum Control"
+          "name": ":two: Rotation (3v3)",
+          "value": "Join the 3v3 rotating gamemodes. Pick this option if you wish to play a 3v3 rotator gamemode."
         },
         {
           "inline": false,
-          "name": ":three: Trials of Osiris",
+          "name": ":three: Rotation (6v6)",
+          "value": "Join the 6v6 rotating gamemodes. Pick this option if you wish to play a 6v6 rotator gamemode."
+        },
+        {
+          "inline": false,
+          "name": ":four: Survival",
+          "value": "Join with two other Guardians to deplete the enemy team's lives while maintaining your own."
+        },
+        {
+          "inline": false,
+          "name": ":five: Trials of Osiris",
           "value": "Engage in the card-based 3v3 Trials of Osiris and earn exclusive weapons and Flawless rewards."
         },
         {
           "inline": false,
-          "name": ":four: Private Match",
-          "value": "Invite others to play a private Crucible match, with a gamemode and map of your choosing."
+          "name": ":six: Private Match (3v3)",
+          "value": "Invite others to play a private Crucible match, with a 3v3 gamemode and map of your choosing."
+        },
+        {
+          "inline": false,
+          "name": ":seven: Private Match (6v6)",
+          "value": "Invite others to play a private Crucible match, with a 6v6 gamemode and map of your choosing."
         }
       ],
       "type": "rich"
     },
-    "reactions": [
+    "meta": [
       {
-        "name": "1️⃣"
+        "name": "1️⃣",
+        "kind": {
+          "Finished": {
+            "activity_name": "Control",
+            "size": 6
+          }
+        }
       },
       {
-        "name": "2️⃣"
+        "name": "2️⃣",
+        "kind": {
+          "Finished": {
+            "activity_name": "Rotation (3v3)",
+            "size": 3
+          }
+        }
       },
       {
-        "name": "3️⃣"
+        "name": "3️⃣",
+        "kind": {
+          "Finished": {
+            "activity_name": "Rotation (6v6)",
+            "size": 6
+          }
+        }
       },
       {
-        "name": "4️⃣"
+        "name": "4️⃣",
+        "kind": {
+          "Finished": {
+            "activity_name": "Survival",
+            "size": 3
+          }
+        }
+      },
+      {
+        "name": "5️⃣",
+        "kind": {
+          "Finished": {
+            "activity_name": "Trials of Osiris",
+            "size": 3
+          }
+        }
+      },
+      {
+        "name": "6️⃣",
+        "kind": {
+          "Finished": {
+            "activity_name": "Crucible Private Match (3v3)",
+            "size": 6
+          }
+        }
+      },
+      {
+        "name": "7️⃣",
+        "kind": {
+          "Finished": {
+            "activity_name": "Crucible Private Match (6v6)",
+            "size": 12
+          }
+        }
       }
     ]
   },
@@ -159,12 +257,24 @@
       ],
       "type": "rich"
     },
-    "reactions": [
+    "meta": [
       {
-        "name": "1️⃣"
+        "name": "1️⃣",
+        "kind": {
+          "Finished": {
+            "activity_name": "Gambit",
+            "size": 4
+          }
+        }
       },
       {
-        "name": "2️⃣"
+        "name": "2️⃣",
+        "kind": {
+          "Finished": {
+            "activity_name": "Gambit Private Match (Really?)",
+            "size": 8
+          }
+        }
       }
     ]
   },
@@ -174,7 +284,7 @@
         "name": "Raids"
       },
       "color": 16485376,
-      "description": "Confront the enemies of humanity in a six-man fireteam raid activity.\nPlease select an activity.",
+      "description": "Confront the enemies of humanity in a six-man raid activity.\nPlease select an activity.",
       "fields": [
         {
           "inline": false,
@@ -199,18 +309,81 @@
       ],
       "type": "rich"
     },
-    "reactions": [
+    "meta": [
       {
-        "name": "1️⃣"
+        "name": "1️⃣",
+        "kind": {
+          "SelectNext": "activity_roster_vog_difficulty"
+        }
       },
       {
-        "name": "2️⃣"
+        "name": "2️⃣",
+        "kind": {
+          "Finished": {
+            "activity_name": "Deep Stone Crypt",
+            "size": 6
+          }
+        }
       },
       {
-        "name": "3️⃣"
+        "name": "3️⃣",
+        "kind": {
+          "Finished": {
+            "activity_name": "Garden of Salvation",
+            "size": 6
+          }
+        }
       },
       {
-        "name": "4️⃣"
+        "name": "4️⃣",
+        "kind": {
+          "Finished": {
+            "activity_name": "Last Wish",
+            "size": 6
+          }
+        }
+      }
+    ]
+  },
+  "activity_roster_vog_difficulty": {
+    "embed": {
+      "author": {
+        "name": "Raids"
+      },
+      "color": 16498733,
+      "description": "Make your own fate by fighting through the underbelly of Venus to defeat Atheon, Time's Conflux.\nPlease select an activity.",
+      "fields": [
+        {
+          "inline": false,
+          "name": ":one: Legend",
+          "value": "Play through the Vault of Glass raid at the original difficulty."
+        },
+        {
+          "inline": false,
+          "name": ":two: Master",
+          "value": "The Vault awaits you, Guardian. Play through the Vault of Glass raid with a higher light level, tougher enemies, and more champions.\nCompleting challenges in the Vault will drop Timelost weapons."
+        }
+      ],
+      "type": "rich"
+    },
+    "meta": [
+      {
+        "name": "1️⃣",
+        "kind": {
+          "Finished": {
+            "activity_name": "Vault of Glass (Legend)",
+            "size": 6
+          }
+        }
+      },
+      {
+        "name": "2️⃣",
+        "kind": {
+          "Finished": {
+            "activity_name": "Vault of Glass (Master)",
+            "size": 6
+          }
+        }
       }
     ]
   },
@@ -225,48 +398,102 @@
         {
           "inline": false,
           "name": ":one: Override",
-          "value": "Ally with the House of Light Splicer, Mithrax, to splice into the Vex network and take down the Vex Mind from within."
+          "value": "Ally with the House Light Kell, Mithrax, and splice into the Vex network to take down the Vex Mind from within."
         },
         {
           "inline": false,
-          "name": ":two: Battlegrounds",
+          "name": ":two: Expunge",
+          "value": "Infiltrate the Vex network to uncover the secrets of the Vex and the Taken."
+        },
+        {
+          "inline": false,
+          "name": ":three: Battlegrounds",
           "value": "Challenge the Cabal to the gladiatorial Rite of Proving, and defeat Caiatl's to-be War Councillors."
         },
         {
           "inline": false,
-          "name": ":three: Presage",
+          "name": ":four: Presage",
           "value": "Uncover the secrets of the Emperor's carrier ship, the Glykon, and investigate a Guardian's distress signal."
         },
         {
           "inline": false,
-          "name": ":four: Wrathborn Hunts",
+          "name": ":five: Wrathborn Hunts",
           "value": "Use a specially designed lure to hunt down and defeat Xivu Arath's minions known only as the Wrathborn. (This sounds better than it is, trust me.)"
         },
         {
           "inline": false,
-          "name": ":five: Harbinger",
+          "name": ":six: Harbinger",
           "value": "Follow the paracausal Hawk deep into the EDZ to drive the Emissaries of Savathûn away from the shard of the Traveler."
         }
       ],
       "type": "rich"
     },
-    "reactions": [
+    "meta": [
       {
-        "name": "1️⃣"
+        "name": "1️⃣",
+        "kind": {
+          "Finished": {
+            "activity_name": "Override",
+            "size": 6
+          }
+        }
       },
       {
-        "name": "2️⃣"
+        "name": "2️⃣",
+        "kind": {
+          "Finished": {
+            "activity_name": "Expunge",
+            "size": 3
+          }
+        }
       },
       {
-        "name": "3️⃣"
+        "name": "3️⃣",
+        "kind": {
+          "Finished": {
+            "activity_name": "Battlegrounds",
+            "size": 3
+          }
+        }
       },
       {
-        "name": "4️⃣"
+        "name": "4️⃣",
+        "kind": {
+          "Finished": {
+            "activity_name": "Presage",
+            "size": 3
+          }
+        }
       },
       {
-        "name": "5️⃣"
+        "name": "5️⃣",
+        "kind": {
+          "Finished": {
+            "activity_name": "Wrathborn Hunts",
+            "size": 3
+          }
+        }
+      },
+      {
+        "name": "6️⃣",
+        "kind": {
+          "Finished": {
+            "activity_name": "Harbinger",
+            "size": 3
+          }
+        }
       }
     ]
+  },
+  "activity_roster_description": {
+    "embed": {
+      "author": {
+        "name": "Activity description"
+      },
+      "color": 2171169,
+      "description": "Please type a description for this activity. (Max 1024 characters)",
+      "type": "rich"
+    }
   },
   "activity_roster_time": {
     "embed": {
@@ -288,18 +515,6 @@
         }
       ],
       "type": "rich"
-    },
-    "reactions": []
-  },
-  "activity_roster_description": {
-    "embed": {
-      "author": {
-        "name": "Activity description"
-      },
-      "color": 2171169,
-      "description": "Click the reply button on this message and type a description for this activity. (Max 1024 characters)",
-      "type": "rich"
-    },
-    "reactions": []
+    }
   }
 }

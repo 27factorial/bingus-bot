@@ -1,0 +1,305 @@
+{
+  "activity_roster_start": {
+    "embed": {
+      "author": {
+        "name": "Activity Roster Setup"
+      },
+      "color": 2171169,
+      "description": "Welcome to the activity roster setup.\nPlease select an activity type.",
+      "fields": [
+        {
+          "inline": false,
+          "name": ":one: Vanguard <:grandmaster:843042055697596417>",
+          "value": "Fight against combatants in three-man Vanguard operations."
+        },
+        {
+          "inline": false,
+          "name": ":two: Crucible <:crucible:843041980770025492>",
+          "value": "Test your might against other Guardians in the Crucible or Trials."
+        },
+        {
+          "inline": false,
+          "name": ":three: Gambit <:gambit:843041954900082698>",
+          "value": "Battle combatants and other Guardians in the Drifter's quasi-legal Gambit."
+        },
+        {
+          "inline": false,
+          "name": ":four: Raids <:vault_of_glass:843040539045920799>",
+          "value": "Confront the enemies of humanity in a six-man fireteam raid activity."
+        },
+        {
+          "inline": false,
+          "name": ":five: Seasonal <:splicer:843042032079339550>",
+          "value": "Take part in seasonal activities; fight for the allies of humanity and for the Last City."
+        }
+      ],
+      "type": "rich"
+    },
+    "reactions": [
+      {
+        "name": "1️⃣"
+      },
+      {
+        "name": "2️⃣"
+      },
+      {
+        "name": "3️⃣"
+      },
+      {
+        "name": "4️⃣"
+      },
+      {
+        "name": "5️⃣"
+      }
+    ]
+  },
+
+  "activity_roster_vanguard": {
+    "embed": {
+      "author": {
+        "name": "Vanguard Activities"
+      },
+      "color": 870305,
+      "description": "Fight against combatants in three-man Vanguard operations.\nPlease select an activity.",
+      "fields": [
+        {
+          "inline": false,
+          "name": ":one: Normal Strikes",
+          "value": "Create a team of three Guardians and take on the normal Strikes."
+        },
+        {
+          "inline": false,
+          "name": ":two: Nightfall: The Ordeal",
+          "value": "Defeat the enemies of humanity in the weekly Nightfall."
+        },
+        {
+          "inline": false,
+          "name": ":three: Grandmaster Nightfall",
+          "value": "Work your way through the hardest missions the Vanguard has to offer to earn Adept loot. Good luck."
+        }
+      ],
+      "type": "rich"
+    },
+    "reactions": [
+      {
+        "name": "1️⃣"
+      },
+      {
+        "name": "2️⃣"
+      },
+      {
+        "name": "3️⃣"
+      }
+    ]
+  },
+  "activity_roster_crucible": {
+    "embed": {
+      "author": {
+        "name": "Crucible Playlists"
+      },
+      "color": 13840175,
+      "desciption": "Test your might against other Guardians in the Crucible or Trials.\nPlease select an activity.",
+      "fields": [
+        {
+          "inline": false,
+          "name": ":one: Control",
+          "value": "Capture and defend zones in a 6v6 PvP activity."
+        },
+        {
+          "inline": false,
+          "name": ":two: Weekly Rotation",
+          "value": "Join the 3v3 or 6v6 rotating gamemodes such as Mayhem or Momentum Control"
+        },
+        {
+          "inline": false,
+          "name": ":three: Trials of Osiris",
+          "value": "Engage in the card-based 3v3 Trials of Osiris and earn exclusive weapons and Flawless rewards."
+        },
+        {
+          "inline": false,
+          "name": ":four: Private Match",
+          "value": "Invite others to play a private Crucible match, with a gamemode and map of your choosing."
+        }
+      ],
+      "type": "rich"
+    },
+    "reactions": [
+      {
+        "name": "1️⃣"
+      },
+      {
+        "name": "2️⃣"
+      },
+      {
+        "name": "3️⃣"
+      },
+      {
+        "name": "4️⃣"
+      }
+    ]
+  },
+  "activity_roster_gambit": {
+    "embed": {
+      "author": {
+        "name": "Gambit"
+      },
+      "color": 3706428,
+      "description": "Battle combatants and other Guardians in the quasi-legal engagements of the Drifter's Gambit.\nPlease select an activity.",
+      "fields": [
+        {
+          "inline": false,
+          "name": ":one: Gambit",
+          "value": "Collect Motes from combatants and bank to summon a Taken Primeval. Invade the other Guardians' battlefield to deny a chance for them to bank."
+        },
+        {
+          "inline": false,
+          "name": ":two: Private Match",
+          "value": "Invite others to play a private Gambit match. Literally nobody clicks this button. You might actually be the first to try it."
+        }
+      ],
+      "type": "rich"
+    },
+    "reactions": [
+      {
+        "name": "1️⃣"
+      },
+      {
+        "name": "2️⃣"
+      }
+    ]
+  },
+  "activity_roster_raid": {
+    "embed": {
+      "author": {
+        "name": "Raids"
+      },
+      "color": 16485376,
+      "description": "Confront the enemies of humanity in a six-man fireteam raid activity.\nPlease select an activity.",
+      "fields": [
+        {
+          "inline": false,
+          "name": ":one: Vault of Glass",
+          "value": "Make your own fate by fighting through the underbelly of Venus to defeat Atheon, Time's Conflux."
+        },
+        {
+          "inline": false,
+          "name": ":two: Deep Stone Crypt",
+          "value": "Uncover the legacy of the Bray family, and defend Europa against the remnants of House Salvation."
+        },
+        {
+          "inline": false,
+          "name": ":three: Garden of Salvation",
+          "value": "Follow the Darkness's signal into the Black Garden to defeat the Sanctified Mind, Sol Inherent."
+        },
+        {
+          "inline": false,
+          "name": ":four: Last Wish",
+          "value": "Venture into the heart of the Dreaming City to free Savathûn's captives and slay the Taken Ahamkara, Riven of a Thousand Voices."
+        }
+      ],
+      "type": "rich"
+    },
+    "reactions": [
+      {
+        "name": "1️⃣"
+      },
+      {
+        "name": "2️⃣"
+      },
+      {
+        "name": "3️⃣"
+      },
+      {
+        "name": "4️⃣"
+      }
+    ]
+  },
+  "activity_roster_seasonal": {
+    "embed": {
+      "author": {
+        "name": "Seasonal Activities"
+      },
+      "color": 10233776,
+      "description": "Take part in seasonal activities; fight for the allies of humanity and for the Last City.\nPlease select an activity.",
+      "fields": [
+        {
+          "inline": false,
+          "name": ":one: Override",
+          "value": "Ally with the House of Light Splicer, Mithrax, to splice into the Vex network and take down the Vex Mind from within."
+        },
+        {
+          "inline": false,
+          "name": ":two: Battlegrounds",
+          "value": "Challenge the Cabal to the gladiatorial Rite of Proving, and defeat Caiatl's to-be War Councillors."
+        },
+        {
+          "inline": false,
+          "name": ":three: Presage",
+          "value": "Uncover the secrets of the Emperor's carrier ship, the Glykon, and investigate a Guardian's distress signal."
+        },
+        {
+          "inline": false,
+          "name": ":four: Wrathborn Hunts",
+          "value": "Use a specially designed lure to hunt down and defeat Xivu Arath's minions known only as the Wrathborn. (This sounds better than it is, trust me.)"
+        },
+        {
+          "inline": false,
+          "name": ":five: Harbinger",
+          "value": "Follow the paracausal Hawk deep into the EDZ to drive the Emissaries of Savathûn away from the shard of the Traveler."
+        }
+      ],
+      "type": "rich"
+    },
+    "reactions": [
+      {
+        "name": "1️⃣"
+      },
+      {
+        "name": "2️⃣"
+      },
+      {
+        "name": "3️⃣"
+      },
+      {
+        "name": "4️⃣"
+      },
+      {
+        "name": "5️⃣"
+      }
+    ]
+  },
+  "activity_roster_time": {
+    "embed": {
+      "author": {
+        "name": "Activity date and time"
+      },
+      "color": 2171169,
+      "description": "Reply to this message with the date and time that the activity will start.",
+      "fields": [
+        {
+          "inline": false,
+          "name": "Format:",
+          "value": "the date and time should be in the format `mm/dd/yyyy hh:mm am|pm`."
+        },
+        {
+          "inline": false,
+          "name": "Important Note:",
+          "value": "Currently, local time conversion is not supported, and all dates and times will be Eastern Time."
+        }
+      ],
+      "type": "rich"
+    },
+    "reactions": []
+  },
+  "activity_roster_description": {
+    "embed": {
+      "author": {
+        "name": "Activity description"
+      },
+      "color": 2171169,
+      "description": "Click the reply button on this message and type a description for this activity. (Max 1024 characters)",
+      "type": "rich"
+    },
+    "reactions": []
+  }
+}

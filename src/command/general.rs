@@ -89,96 +89,17 @@ async fn activity_create(ctx: &Context, original_msg: &Message) -> CommandResult
 
     // FIXME: Dear god holy shit please fix this mess
     match embed_map.get("activity_roster_start") {
-        Some(embed_with_reaction) => {
-            let mut data = embed_with_reaction
-                .send_and_await_reaction(
+        Some(embed_with_meta) => {
+            let mut data = embed_with_meta
+                .clone()
+                .send_embed_chain(
                     ctx,
+                    &embed_map,
                     original_msg.channel_id,
                     Some(Duration::from_secs(120)),
                     Some(original_msg.author.id),
-                    "activity_roster_start".into(),
                 )
-                .await?
-                .edit_and_await_reaction(ctx, |reaction| match &reaction.as_data()[..] {
-                    "1️⃣" => Some((
-                        embed_map["activity_roster_vanguard"].clone(),
-                        "activity_roster_vanguard".into(),
-                    )),
-                    "2️⃣" => Some((
-                        embed_map["activity_roster_crucible"].clone(),
-                        "activity_roster_crucible".into(),
-                    )),
-                    "3️⃣" => Some((
-                        embed_map["activity_roster_gambit"].clone(),
-                        "activity_roster_gambit".into(),
-                    )),
-                    "4️⃣" => Some((
-                        embed_map["activity_roster_raid"].clone(),
-                        "activity_roster_raid".into(),
-                    )),
-                    "5️⃣" => Some((
-                        embed_map["activity_roster_seasonal"].clone(),
-                        "activity_roster_seasonal".into(),
-                    )),
-                    _ => None,
-                })
                 .await?;
-
-            let (activity_name, size) = match data.message_name.as_str() {
-                "activity_roster_vanguard" => match data.reaction.as_data().as_str() {
-                    "1️⃣" => ("Normal Strikes", 3u8),
-                    "2️⃣" => ("Nightfall: The Ordeal", 3),
-                    "3️⃣" => ("Grandmaster Nightfall", 3),
-                    _ => {
-                        imp::send_error_message(ctx, &data.message, "An error has occurred setting the activity name. Please contact Factorial about this.").await?;
-                        return Ok(());
-                    }
-                },
-                "activity_roster_crucible" => match data.reaction.as_data().as_str() {
-                    "1️⃣" => ("Control", 6),
-                    "2️⃣" => ("Weekly Rotation", 6),
-                    "3️⃣" => ("Trials of Osiris", 3),
-                    "4️⃣" => ("Crucible Private Match", 12),
-                    _ => {
-                        imp::send_error_message(ctx, &data.message, "An error has occurred setting the activity name. Please contact Factorial about this.").await?;
-                        return Ok(());
-                    }
-                },
-                "activity_roster_gambit" => match data.reaction.as_data().as_str() {
-                    "1️⃣" => ("Gambit", 4),
-                    "2️⃣" => ("Gambit Private Match", 8),
-                    _ => {
-                        imp::send_error_message(ctx, &data.message, "An error has occurred setting the activity name. Please contact Factorial about this.").await?;
-                        return Ok(());
-                    }
-                },
-                "activity_roster_raid" => match data.reaction.as_data().as_str() {
-                    "1️⃣" => ("Vault of Glass", 6),
-                    "2️⃣" => ("Deep Stone Crypt", 6),
-                    "3️⃣" => ("Garden of Salvation", 6),
-                    "4️⃣" => ("Last Wish", 6),
-                    "5️⃣" => ("Deep Stone Crypt", 6),
-                    _ => {
-                        imp::send_error_message(ctx, &data.message, "An error has occurred setting the activity name. Please contact Factorial about this.").await?;
-                        return Ok(());
-                    }
-                },
-                "activity_roster_seasonal" => match data.reaction.as_data().as_str() {
-                    "1️⃣" => ("Override", 6),
-                    "2️⃣" => ("Battlegrounds", 3),
-                    "3️⃣" => ("Presage", 3),
-                    "4️⃣" => ("Wrathborn Hunts", 3),
-                    "5️⃣" => ("Harbinger", 3),
-                    _ => {
-                        imp::send_error_message(ctx, &data.message, "An error has occurred setting the activity name. Please contact Factorial about this.").await?;
-                        return Ok(());
-                    }
-                },
-                _ => {
-                    imp::send_error_message(ctx, &data.message, "An error has occurred setting the activity name. Please contact Factorial about this.").await?;
-                    return Ok(());
-                }
-            };
 
             data.message.delete_reactions(ctx).await?;
 
@@ -316,11 +237,11 @@ async fn activity_create(ctx: &Context, original_msg: &Message) -> CommandResult
                 let activity_id = guild_data.activity_id();
 
                 let activity = Activity::new(
-                    activity_name.to_string(),
+                    data.activity_name.to_string(),
                     description,
                     date_time_str,
                     activity_id,
-                    size,
+                    data.size,
                     original_msg.author.id,
                     data.message.clone(),
                 );
@@ -334,7 +255,7 @@ async fn activity_create(ctx: &Context, original_msg: &Message) -> CommandResult
                 };
 
                 let activity_embed = guild_data
-                    .get_activity(activity_id)
+                    .activity(activity_id)
                     .unwrap()
                     .as_create_embed(0x212121);
 
@@ -425,7 +346,7 @@ async fn activity_join(ctx: &Context, original_msg: &Message, mut args: Args) ->
         .entry(guild_id.0)
         .or_insert_with(|| GuildData::new(guild_id));
 
-    let activity = match guild_data.get_activity_mut(activity_id) {
+    let activity = match guild_data.activity_mut(activity_id) {
         Some(activity) => activity,
         None => {
             imp::send_error_message(ctx, original_msg, "Invalid activity ID.").await?;
@@ -496,7 +417,7 @@ async fn activity_alt(ctx: &Context, original_msg: &Message, mut args: Args) -> 
         .entry(guild_id.0)
         .or_insert_with(|| GuildData::new(guild_id));
 
-    let activity = match guild_data.get_activity_mut(activity_id) {
+    let activity = match guild_data.activity_mut(activity_id) {
         Some(activity) => activity,
         None => {
             imp::send_error_message(ctx, original_msg, "Invalid activity ID.").await?;
@@ -568,7 +489,7 @@ async fn activity_leave(ctx: &Context, original_msg: &Message, mut args: Args) -
         .entry(guild_id.0)
         .or_insert_with(|| GuildData::new(guild_id));
 
-    let activity = match guild_data.get_activity_mut(activity_id) {
+    let activity = match guild_data.activity_mut(activity_id) {
         Some(activity) => activity,
         None => {
             imp::send_error_message(ctx, original_msg, "Invalid activity ID.").await?;
@@ -640,7 +561,7 @@ async fn activity_delete(ctx: &Context, original_msg: &Message, mut args: Args) 
         .entry(guild_id.0)
         .or_insert_with(|| GuildData::new(guild_id));
 
-    let creator_id = match guild_data.get_activity(activity_id) {
+    let creator_id = match guild_data.activity(activity_id) {
         Some(activity) => activity.creator,
         None => {
             imp::send_error_message(ctx, original_msg, "Invalid activity ID.").await?;

@@ -7,7 +7,6 @@ use std::{
 };
 
 use serde::{Deserialize, Serialize};
-
 use serenity::{
     builder::CreateEmbed,
     collector::ReactionAction,
@@ -71,11 +70,11 @@ impl GuildData {
         }
     }
 
-    pub fn get_activity(&self, id: u64) -> Option<&Activity> {
+    pub fn activity(&self, id: u64) -> Option<&Activity> {
         self.activities.get(&id)
     }
 
-    pub fn get_activity_mut(&mut self, id: u64) -> Option<&mut Activity> {
+    pub fn activity_mut(&mut self, id: u64) -> Option<&mut Activity> {
         self.activities.get_mut(&id)
     }
 
@@ -285,7 +284,7 @@ impl Activity {
 
 #[derive(Debug)]
 #[non_exhaustive]
-pub enum ReactionError {
+pub enum EmbedError {
     InvalidReaction,
     RemovedReaction,
     TimedOut,
@@ -293,15 +292,15 @@ pub enum ReactionError {
     Serenity(serenity::Error),
 }
 
-impl From<serenity::Error> for ReactionError {
+impl From<serenity::Error> for EmbedError {
     fn from(e: serenity::Error) -> Self {
         Self::Serenity(e)
     }
 }
 
-impl fmt::Display for ReactionError {
+impl fmt::Display for EmbedError {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        use ReactionError::*;
+        use EmbedError::*;
 
         let display = match self {
             InvalidReaction => "Invalid reaction".into(),
@@ -315,111 +314,147 @@ impl fmt::Display for ReactionError {
     }
 }
 
-impl error::Error for ReactionError {}
+impl error::Error for EmbedError {}
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct EmbedWithReactions {
+pub struct EmbedWithMeta {
     pub embed: Embed,
-    pub reactions: Vec<ReactionType>,
+    pub meta: Option<Vec<SelectionInfo>>,
 }
 
-impl EmbedWithReactions {
-    pub async fn send_and_await_reaction(
-        &self,
+impl EmbedWithMeta {
+    pub async fn send_embed_chain(
+        self,
         ctx: &Context,
+        embed_map: &HashMap<String, EmbedWithMeta>,
         channel: ChannelId,
         timeout: Option<Duration>,
         from_user: Option<UserId>,
-        message_name: String,
-    ) -> Result<MessageData, ReactionError> {
-        let embed_msg = channel
-            .send_message(ctx, |msg| msg.set_embed(imp::create_embed(&self.embed)))
-            .await?;
+    ) -> Result<RosterData, EmbedError> {
+        let mut embed_with_meta = self;
+        let mut embed_msg = None;
 
-        for reaction_type in self.reactions.iter().cloned() {
-            embed_msg.react(ctx, reaction_type).await?;
-        }
+        loop {
+            if embed_msg.is_none() {
+                embed_msg = Some(
+                    channel
+                        .send_message(ctx, |msg| {
+                            msg.set_embed(imp::create_embed(&embed_with_meta.embed))
+                        })
+                        .await?,
+                );
+            } else if let Some(ref mut edited_msg) = embed_msg {
+                edited_msg.delete_reactions(ctx).await?;
 
-        let mut collector = embed_msg.await_reaction(ctx);
-
-        if let Some(id) = from_user {
-            collector = collector.author_id(id);
-        }
-
-        if let Some(duration) = timeout {
-            collector = collector.timeout(duration);
-        }
-
-        helpers::await_reaction(ctx, collector, embed_msg, timeout, from_user, message_name).await
-    }
-}
-
-pub struct MessageData {
-    pub message: Message,
-    pub reaction: ReactionType,
-    pub timeout: Option<Duration>,
-    pub user: Option<UserId>,
-    pub message_name: String,
-}
-
-impl MessageData {
-    pub async fn edit_and_await_reaction<F>(
-        mut self,
-        ctx: &Context,
-        f: F,
-    ) -> Result<Self, ReactionError>
-    where
-        F: FnOnce(ReactionType) -> Option<(EmbedWithReactions, String)>,
-    {
-        let (next_embed, reactions, message_name) = match f(self.reaction) {
-            Some((data, name)) => (data.embed, data.reactions, name),
-            None => {
-                self.message
-                    .channel_id
-                    .say(
-                        ctx,
-                        "Invalid reaction. Please react with one of the listed reactions.",
-                    )
+                edited_msg
+                    .edit(ctx, |msg| {
+                        msg.embed(|edited_embed| {
+                            *edited_embed = imp::create_embed(&embed_with_meta.embed);
+                            edited_embed
+                        })
+                    })
                     .await?;
-                return Err(ReactionError::InvalidReaction);
             }
-        };
 
-        // Remove the current reactions.
-        self.message.delete_reactions(ctx).await?;
-        self.message
-            .edit(ctx, |msg| {
-                msg.embed(|embed| {
-                    *embed = imp::create_embed_owned(next_embed);
-                    embed
-                })
-            })
-            .await?;
+            let embed_msg = embed_msg.clone().ok_or(EmbedError::Other)?;
+            let meta = embed_with_meta.meta.ok_or(EmbedError::Other)?;
 
-        for reaction_type in reactions.into_iter() {
-            self.message.react(ctx, reaction_type).await?;
+            for selection_info in meta.iter() {
+                embed_msg
+                    .react(ctx, ReactionType::Unicode(selection_info.name.clone()))
+                    .await?;
+            }
+
+            let mut collector = embed_msg.await_reaction(ctx);
+
+            if let Some(id) = from_user {
+                collector = collector.author_id(id);
+            }
+
+            if let Some(duration) = timeout {
+                collector = collector.timeout(duration);
+            }
+
+            let selection_info =
+                helpers::await_reaction(ctx, collector, embed_msg.clone(), timeout, meta).await?;
+
+            match selection_info.kind {
+                RosterKind::SelectNext(name) => {
+                    embed_with_meta = embed_map
+                        .get(&name)
+                        .cloned()
+                        .ok_or(EmbedError::InvalidReaction)?;
+                }
+                RosterKind::Finished {
+                    activity_name,
+                    size,
+                } => {
+                    return Ok(RosterData {
+                        activity_name,
+                        size,
+                        message: embed_msg,
+                        timeout,
+                    })
+                }
+            }
         }
-
-        let mut collector = self.message.await_reaction(ctx);
-
-        if let Some(id) = self.user {
-            collector = collector.author_id(id);
-        }
-
-        if let Some(duration) = self.timeout {
-            collector = collector.timeout(duration);
-        }
-
-        helpers::await_reaction(
-            ctx,
-            collector,
-            self.message,
-            self.timeout,
-            self.user,
-            message_name,
-        )
-        .await
     }
+
+    // pub async fn send_and_await_reaction(
+    //     &self,
+    //     ctx: &Context,
+    //     channel: ChannelId,
+    //     timeout: Option<Duration>,
+    //     from_user: Option<UserId>,
+    // ) -> Result<MessageData, ReactionError> {
+    //     let embed_msg = channel
+    //         .send_message(ctx, |msg| msg.set_embed(imp::create_embed(&self.embed)))
+    //         .await?;
+    //
+    //     for selection_info in self.meta.iter() {
+    //         embed_msg.react(ctx, selection_info.name).await?;
+    //     }
+    //
+    //     let mut collector = embed_msg.await_reaction(ctx);
+    //
+    //     if let Some(id) = from_user {
+    //         collector = collector.author_id(id);
+    //     }
+    //
+    //     if let Some(duration) = timeout {
+    //         collector = collector.timeout(duration);
+    //     }
+    //
+    //     helpers::await_reaction(
+    //         ctx,
+    //         collector,
+    //         embed_msg,
+    //         timeout,
+    //         from_user,
+    //         embed_with_meta.meta,
+    //     )
+    //     .await
+    // }
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct SelectionInfo {
+    pub name: String,
+    pub kind: RosterKind,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub enum RosterKind {
+    SelectNext(String),
+    Finished { activity_name: String, size: u8 },
+}
+
+#[derive(Clone, Debug)]
+pub struct RosterData {
+    pub activity_name: String,
+    pub size: u8,
+    pub message: Message,
+    pub timeout: Option<Duration>,
 }
 
 mod helpers {
@@ -431,40 +466,39 @@ mod helpers {
         collector: CollectReaction<'_>,
         message: Message,
         timeout: Option<Duration>,
-        user: Option<UserId>,
-        message_name: String,
-    ) -> Result<MessageData, ReactionError> {
+        selections: Vec<SelectionInfo>,
+    ) -> Result<SelectionInfo, EmbedError> {
         // Interacting with Discord's API can be... verbose at times.
         match collector.await {
             Some(action) => {
                 match &*action {
-                    ReactionAction::Added(reaction) => Ok(MessageData {
-                        message,
-                        reaction: reaction.emoji.clone(),
-                        timeout,
-                        user,
-                        message_name,
-                    }),
+                    ReactionAction::Added(reaction) => {
+                        let name = reaction.emoji.as_data();
+                        selections
+                            .into_iter()
+                            .find(|info| info.name == name)
+                            .ok_or(EmbedError::InvalidReaction)
+                    }
                     ReactionAction::Removed(_) => {
                         message.channel_id.say(ctx, "You removed a reaction before the bot was ready. Please try again.").await?;
-                        Err(ReactionError::RemovedReaction)
+                        Err(EmbedError::RemovedReaction)
                     }
                 }
             }
             None => match timeout {
                 Some(duration) => {
                     message.channel_id.say(
-                            ctx,
-                            format!("You did not add a reaction in time. Please react within {} seconds.", duration.as_secs()),
-                        ).await?;
-                    Err(ReactionError::TimedOut)
+                        ctx,
+                        format!("You did not add a reaction in time. Please react within {} seconds.", duration.as_secs()),
+                    ).await?;
+                    Err(EmbedError::TimedOut)
                 }
                 None => {
                     message.channel_id.say(
-                            ctx,
-                            "Some error occurred with getting a reaction. Please contact Factorial about this."
-                        ).await?;
-                    Err(ReactionError::Other)
+                        ctx,
+                        "Some error occurred with getting a reaction. Please contact Factorial about this."
+                    ).await?;
+                    Err(EmbedError::Other)
                 }
             },
         }

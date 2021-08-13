@@ -99,7 +99,7 @@ async fn admin_activity_add(
         .entry(guild_id.0)
         .or_insert_with(|| GuildData::new(guild_id));
 
-    let activity = match guild_data.get_activity_mut(activity_id) {
+    let activity = match guild_data.activity_mut(activity_id) {
         Some(activity) => activity,
         None => {
             imp::send_error_message(ctx, original_msg, "Invalid activity ID.").await?;
@@ -187,7 +187,7 @@ async fn admin_activity_alt(
         .entry(guild_id.0)
         .or_insert_with(|| GuildData::new(guild_id));
 
-    let activity = match guild_data.get_activity_mut(activity_id) {
+    let activity = match guild_data.activity_mut(activity_id) {
         Some(activity) => activity,
         None => {
             imp::send_error_message(ctx, original_msg, "Invalid activity ID.").await?;
@@ -277,7 +277,7 @@ async fn admin_activity_remove(
         .entry(guild_id.0)
         .or_insert_with(|| GuildData::new(guild_id));
 
-    let activity = match guild_data.get_activity_mut(activity_id) {
+    let activity = match guild_data.activity_mut(activity_id) {
         Some(activity) => activity,
         None => {
             imp::send_error_message(ctx, original_msg, "Invalid activity ID.").await?;

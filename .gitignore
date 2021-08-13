@@ -2,3 +2,4 @@
 /.idea
 /Cargo.lock
 /config/config.json
+/config/test.json
