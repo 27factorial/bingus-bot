@@ -89,9 +89,9 @@ impl GuildData {
 #[non_exhaustive]
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
 pub enum ActivityError {
-    FireteamFull,
-    MemberAlreadyInFireteam,
-    MemberNotInFireteam,
+    MemberListFull,
+    MemberAlreadyInList,
+    MemberNotInList,
     AlternateFull,
     MemberAlreadyInAlternate,
     MemberNotInAlternate,
@@ -143,10 +143,10 @@ impl Activity {
                 if self.members.insert(member) {
                     Ok(())
                 } else {
-                    Err(ActivityError::MemberAlreadyInFireteam)
+                    Err(ActivityError::MemberAlreadyInList)
                 }
             } else {
-                Err(ActivityError::FireteamFull)
+                Err(ActivityError::MemberListFull)
             }
         } else {
             let idx = self
@@ -192,7 +192,7 @@ impl Activity {
         if self.members.remove(&member) {
             Ok(())
         } else {
-            Err(ActivityError::MemberNotInFireteam)
+            Err(ActivityError::MemberNotInList)
         }
     }
 
@@ -252,12 +252,12 @@ impl Activity {
 
         embed
             .color(color)
-            .title("Destiny 2 Activity Roster")
+            .title("Activity Roster")
             .field("Activity:", &self.name, true)
             .field("Time:", &self.date, true)
             .field("Activity ID:", self.id, true)
             .field("Description:", &self.description, false)
-            .field("Fireteam Members:", members_string, false)
+            .field("Member List:", members_string, false)
             .field("Alternate Members:", alternate_string, false)
             .field(
                 "Joining And Leaving:",

@@ -19,22 +19,8 @@ use std::time::Duration;
 
 #[group]
 #[description = "General, everyday commands."]
-#[commands(create_embed, send_emoji, send_embed, activity)]
+#[commands(activity)]
 pub struct General;
-
-#[command]
-#[description = "Creates an embed."]
-async fn create_embed(ctx: &Context, original_msg: &Message) -> CommandResult {
-    let channel = original_msg.channel_id;
-
-    channel
-        .send_message(&ctx, |msg| {
-            msg.embed(|embed| embed.color(0xFF00FF).description("Test Embed"))
-        })
-        .await?;
-
-    Ok(())
-}
 
 #[command]
 #[description = "Create, edit, or delete an activity roster. Subcommands are create, edit, delete."]
@@ -87,7 +73,6 @@ async fn activity_create(ctx: &Context, original_msg: &Message) -> CommandResult
     // Unlock read lock so that other contexts can use it.
     drop(type_map);
 
-    // FIXME: Dear god holy shit please fix this mess
     match embed_map.get("activity_roster_start") {
         Some(embed_with_meta) => {
             let mut data = embed_with_meta
@@ -355,12 +340,12 @@ async fn activity_join(ctx: &Context, original_msg: &Message, mut args: Args) ->
     };
 
     let error = match activity.add_member(original_msg.author.id) {
-        Err(ActivityError::MemberAlreadyInFireteam) => Some("You are already in that fireteam."),
-        Err(ActivityError::FireteamFull) => Some("The fireteam for that activity is already full."),
+        Err(ActivityError::MemberAlreadyInList) => Some("You are already in that member list."),
+        Err(ActivityError::MemberListFull) => Some("The member list for that activity is already full."),
         Err(ActivityError::MemberNotInAlternate) => {
-            Some("Attempted to move you to the fireteam, but you were not an alternate. Please try again.")
+            Some("Attempted to move you to the member list, but you were not an alternate. Please try again.")
         }
-        Err(_) => Some("Some other error occurred adding you to the fireteam."),
+        Err(_) => Some("Some other error occurred adding you to the member list."),
         Ok(()) => None,
     };
 
@@ -427,12 +412,12 @@ async fn activity_alt(ctx: &Context, original_msg: &Message, mut args: Args) -> 
 
     let error = match activity.add_member_alt(original_msg.author.id) {
         Err(ActivityError::MemberAlreadyInAlternate) => {
-            Some("You are already in that alternate fireteam.")
+            Some("You are already in that alternate member list.")
         }
         Err(ActivityError::AlternateFull) => {
-            Some("The alternate fireteam for that activity is already full.")
+            Some("The alternate member list for that activity is already full.")
         }
-        Err(_) => Some("Some other error occurred adding you to the fireteam."),
+        Err(_) => Some("Some other error occurred adding you to the member list."),
         Ok(()) => None,
     };
 
@@ -500,9 +485,9 @@ async fn activity_leave(ctx: &Context, original_msg: &Message, mut args: Args) -
     let error = match activity.remove_member(original_msg.author.id) {
         Err(_) => match activity.remove_member_alt(original_msg.author.id) {
             Err(ActivityError::MemberNotInAlternate) => {
-                Some("You are not in that activity's fireteam.")
+                Some("You are not in that activity's member list.")
             }
-            Err(_) => Some("Some other error occurred removing you from the fireteam."),
+            Err(_) => Some("Some other error occurred removing you from the member list."),
             Ok(()) => None,
         },
         Ok(()) => None,
@@ -587,87 +572,4 @@ async fn activity_delete(ctx: &Context, original_msg: &Message, mut args: Args) 
     }
 
     Ok(())
-}
-
-#[command]
-async fn send_emoji(ctx: &Context, original_msg: &Message, args: Args) -> CommandResult {
-    let emoji_name = match args.current() {
-        Some(name) => name,
-        None => {
-            original_msg
-                .channel_id
-                .say(ctx, "Please provide a valid name.")
-                .await?;
-            return Ok(());
-        }
-    };
-
-    let type_map = ctx.data.read().await;
-
-    let emoji_map = match type_map.get::<data_keys::GetEmojiMap>() {
-        Some(map) => map,
-        None => {
-            original_msg
-                .channel_id
-                .say(ctx, "Emoji map was not registered.")
-                .await?;
-            return Ok(());
-        }
-    };
-
-    match emoji_map.get(emoji_name) {
-        Some(&emoji) => {
-            let mention = Mention::from(emoji);
-
-            original_msg.channel_id.say(ctx, mention).await?;
-            Ok(())
-        }
-        None => {
-            original_msg.channel_id.say(ctx, "Emoji not found.").await?;
-            Ok(())
-        }
-    }
-}
-
-#[command]
-async fn send_embed(ctx: &Context, original_msg: &Message, args: Args) -> CommandResult {
-    let embed_name = match args.current() {
-        Some(name) => name,
-        None => {
-            original_msg
-                .channel_id
-                .say(ctx, "Please provide a valid name.")
-                .await?;
-            return Ok(());
-        }
-    };
-
-    let type_map = ctx.data.read().await;
-
-    let embed_map = match type_map.get::<data_keys::GetEmbedMap>() {
-        Some(map) => map,
-        None => {
-            original_msg
-                .channel_id
-                .say(ctx, "Embed map was not registered.")
-                .await?;
-            return Ok(());
-        }
-    };
-
-    match embed_map.get(embed_name) {
-        Some(embed_with_reaction) => {
-            original_msg
-                .channel_id
-                .send_message(ctx, |msg| {
-                    msg.set_embed(CreateEmbed::from(embed_with_reaction.embed.clone()))
-                })
-                .await?;
-            Ok(())
-        }
-        None => {
-            original_msg.channel_id.say(ctx, "Embed not found.").await?;
-            Ok(())
-        }
-    }
 }

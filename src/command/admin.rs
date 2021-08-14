@@ -108,10 +108,10 @@ async fn admin_activity_add(
     };
 
     let error = match activity.add_member(user_id) {
-        Err(ActivityError::MemberAlreadyInFireteam) => {
+        Err(ActivityError::MemberAlreadyInList) => {
             Some("That user is already in that fireteam.")
         }
-        Err(ActivityError::FireteamFull) => Some("The fireteam for that activity is already full."),
+        Err(ActivityError::MemberListFull) => Some("The fireteam for that activity is already full."),
         Err(ActivityError::MemberNotInAlternate) => Some("Attempted to move that user to the fireteam, but they were not an alternate. Please try again."),
         Err(_) => Some("Some other error occurred adding that user to the fireteam."),
         Ok(()) => None,
