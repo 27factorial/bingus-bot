@@ -5,6 +5,45 @@
         "name": "Activity Roster Setup"
       },
       "color": 2171169,
+      "description": "Welcome to the activity roster setup.\nPlease select a game.",
+      "fields": [
+        {
+          "inline": false,
+          "name": ":one: Destiny 2",
+          "value": "Create an activity roster for Destiny 2."
+        },
+        {
+          "inline": false,
+          "name": ":two: Jackbox",
+          "value": "Create an activity roster for Jackbox."
+        }
+      ],
+      "type": "rich"
+    },
+    "meta": [
+      {
+        "name": "1️⃣",
+        "kind": {
+          "SelectNext": "activity_roster_destiny"
+        }
+      },
+      {
+        "name": "2️⃣",
+        "kind": {
+          "Finished": {
+            "activity_name": "Jackbox",
+            "size": 255
+          }
+        }
+      }
+    ]
+  },
+  "activity_roster_destiny": {
+    "embed": {
+      "author": {
+        "name": "Activity Roster Setup"
+      },
+      "color": 2171169,
       "description": "Welcome to the activity roster setup.\nPlease select an activity type.",
       "fields": [
         {
