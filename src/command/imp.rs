@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-use chrono::{DateTime, FixedOffset, NaiveDate, NaiveDateTime, NaiveTime};
+use chrono::{DateTime, FixedOffset, NaiveDate, NaiveDateTime, NaiveTime, TimeZone};
 use serenity::builder::CreateEmbed;
 use serenity::framework::standard::CommandResult;
 use serenity::model::channel::Embed;
@@ -141,15 +141,11 @@ pub(crate) fn parse_date_time(date_time_str: &str) -> Option<(DateTime<FixedOffs
         return None;
     }
 
-    let timezone = FixedOffset::west(4 * 3600);
-    let naive_date = NaiveDate::from_ymd(year_value, month_value, day_value);
-    let naive_time = NaiveTime::from_hms(hour_value, minute_value, 0) - timezone;
-    let naive_date_time = NaiveDateTime::new(naive_date, naive_time);
+    let date_time = FixedOffset::west(4 * 3600)
+        .ymd(year_value, month_value, day_value)
+        .and_hms(hour_value, minute_value, 0);
 
-    Some((
-        DateTime::from_utc(naive_date_time, timezone),
-        date_time_str.to_ascii_lowercase(),
-    ))
+    Some((date_time, date_time_str.to_ascii_lowercase()))
 }
 
 fn max_day_value(month: u32) -> u32 {
