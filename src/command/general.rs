@@ -140,13 +140,6 @@ async fn activity_create(ctx: &Context, original_msg: &Message) -> CommandResult
                 }
             };
 
-            imp::send_error_message(
-                ctx,
-                original_msg,
-                format!("{:?}", (&date_time, &date_time_str)),
-            )
-            .await?;
-
             data.message.delete_reactions(ctx).await?;
 
             let description_embed = match embed_map.get("activity_roster_description") {
@@ -210,12 +203,6 @@ async fn activity_create(ctx: &Context, original_msg: &Message) -> CommandResult
             let duration_until_start = match (date_time - date_time_now).to_std() {
                 Ok(duration) => duration,
                 Err(_) => {
-                    imp::send_error_message(
-                        ctx,
-                        &data.message,
-                        format!("{:?}", (date_time - date_time_now)),
-                    )
-                    .await?;
                     imp::send_error_message(
                         ctx,
                         &data.message,
