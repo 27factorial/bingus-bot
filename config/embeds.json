@@ -76,6 +76,12 @@
     },
     "meta": [
       {
+        "name": "⬅️",
+        "kind": {
+          "SelectNext": "activity_roster_start"
+        }
+      },
+      {
         "name": "1️⃣",
         "kind": {
           "SelectNext": "activity_roster_vanguard"
@@ -134,6 +140,12 @@
       "type": "rich"
     },
     "meta": [
+      {
+        "name": "⬅️",
+        "kind": {
+          "SelectNext": "activity_roster_destiny"
+        }
+      },
       {
         "name": "1️⃣",
         "kind": {
@@ -210,6 +222,12 @@
       "type": "rich"
     },
     "meta": [
+      {
+        "name": "⬅️",
+        "kind": {
+          "SelectNext": "activity_roster_destiny"
+        }
+      },
       {
         "name": "1️⃣",
         "kind": {
@@ -298,6 +316,12 @@
     },
     "meta": [
       {
+        "name": "⬅️",
+        "kind": {
+          "SelectNext": "activity_roster_destiny"
+        }
+      },
+      {
         "name": "1️⃣",
         "kind": {
           "Finished": {
@@ -349,6 +373,12 @@
       "type": "rich"
     },
     "meta": [
+      {
+        "name": "⬅️",
+        "kind": {
+          "SelectNext": "activity_roster_destiny"
+        }
+      },
       {
         "name": "1️⃣",
         "kind": {
@@ -406,6 +436,12 @@
       "type": "rich"
     },
     "meta": [
+      {
+        "name": "⬅️",
+        "kind": {
+          "SelectNext": "activity_roster_raid"
+        }
+      },
       {
         "name": "1️⃣",
         "kind": {
@@ -468,6 +504,12 @@
       "type": "rich"
     },
     "meta": [
+      {
+        "name": "⬅️",
+        "kind": {
+          "SelectNext": "activity_roster_destiny"
+        }
+      },
       {
         "name": "1️⃣",
         "kind": {
