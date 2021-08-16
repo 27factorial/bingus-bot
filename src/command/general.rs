@@ -1,3 +1,9 @@
+use crate::command::data::ActivityError;
+use crate::command::data::{Activity, GuildData};
+use crate::command::imp;
+use crate::command::imp::data_keys;
+use crate::util::CancelActivity;
+use chrono::{FixedOffset, TimeZone, Utc};
 use serenity::{
     framework::standard::{
         macros::{command, group},
@@ -6,16 +12,6 @@ use serenity::{
     model::channel::Message,
     prelude::Context,
 };
-
-use crate::command::data::ActivityError;
-use crate::command::data::{Activity, GuildData};
-use crate::command::imp;
-use crate::command::imp::data_keys;
-use chrono::{DateTime, FixedOffset, TimeZone, Utc};
-use serenity::builder::CreateEmbed;
-
-use crate::util::CancelActivity;
-use serenity::model::misc::Mention;
 use std::time::Duration;
 
 #[group]
