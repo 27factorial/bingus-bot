@@ -1,11 +1,12 @@
-use std::fmt::Display;
-
-use chrono::{DateTime, FixedOffset, NaiveDate, NaiveDateTime, NaiveTime, TimeZone};
+use chrono::{DateTime, FixedOffset, TimeZone};
 use serenity::builder::CreateEmbed;
 use serenity::framework::standard::CommandResult;
 use serenity::model::channel::Embed;
+use serenity::model::id::GuildId;
+use serenity::model::misc::Mention;
 use serenity::model::prelude::{Message, UserId};
-use serenity::prelude::Context;
+use serenity::prelude::{Context, TypeMap};
+use std::fmt::Display;
 
 pub(crate) fn create_embed(embed: &Embed) -> CreateEmbed {
     CreateEmbed::from(embed.clone())
@@ -164,6 +165,47 @@ fn max_day_value(month: u32) -> u32 {
         12 => 31,
         _ => panic!("Invalid month value"),
     }
+}
+
+pub async fn start_activity(
+    ctx: &Context,
+    type_map: &mut TypeMap,
+    guild_id: GuildId,
+    activity_id: u64,
+) -> serenity::Result<()> {
+    if let Some(guild_map) = type_map.get_mut::<data_keys::GetGuildData>() {
+        if let Some(guild_data) = guild_map.get_mut(&guild_id.0) {
+            if let Some(activity) = guild_data.remove_activity(activity_id) {
+                if !activity.members.is_empty() {
+                    let member_count = activity.members.len();
+
+                    let mention_string = activity
+                        .members
+                        .into_iter()
+                        .enumerate()
+                        .map(|(idx, user)| {
+                            if idx == 0 {
+                                Mention::from(user).to_string()
+                            } else if idx == member_count - 1 {
+                                format!(", and {}", Mention::from(user))
+                            } else {
+                                format!(", {}", Mention::from(user))
+                            }
+                        })
+                        .collect::<String>();
+
+                    let content = format!(
+                        "Hey {}! {} is starting now. Good luck and have fun!",
+                        mention_string, activity.name
+                    );
+
+                    activity.embed_msg.channel_id.say(ctx, content).await?;
+                }
+            }
+        }
+    }
+
+    Ok(())
 }
 
 pub mod data_keys {

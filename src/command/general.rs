@@ -14,6 +14,7 @@ use crate::command::imp::data_keys;
 use chrono::{DateTime, FixedOffset, TimeZone, Utc};
 use serenity::builder::CreateEmbed;
 
+use crate::util::CancelActivity;
 use serenity::model::misc::Mention;
 use std::time::Duration;
 
@@ -41,12 +42,13 @@ async fn activity(ctx: &Context, original_msg: &Message, args: Args) -> CommandR
         "join" => activity_join(ctx, original_msg, args).await,
         "alt" => activity_alt(ctx, original_msg, args).await,
         "leave" => activity_leave(ctx, original_msg, args).await,
+        "edit" => activity_edit(ctx, original_msg, args).await,
         "delete" => activity_delete(ctx, original_msg, args).await,
         _ => {
             imp::send_error_message(
                 ctx,
                 original_msg,
-                "Invalid subcommand. Valid subcommands are `create`, `join`, `alt`, `leave`, and `delete`.",
+                "Invalid subcommand. Valid subcommands are `create`, `join`, `alt`, `leave`, `edit`, and `delete`.",
             )
             .await?;
             Ok(())
@@ -213,14 +215,17 @@ async fn activity_create(ctx: &Context, original_msg: &Message) -> CommandResult
                 }
             };
 
-            if let Some(id) = guild_id {
+            if let Some(guild_id_val) = guild_id {
                 let mut type_map = ctx.data.write().await;
                 let guild_data_map = type_map.entry::<data_keys::GetGuildData>().or_default();
                 let guild_data = guild_data_map
-                    .entry(id.0)
-                    .or_insert_with(|| GuildData::new(id));
+                    .entry(guild_id_val.0)
+                    .or_insert_with(|| GuildData::new(guild_id_val));
 
                 let activity_id = guild_data.activity_id();
+
+                let (cancel_future, cancel_token) = CancelActivity::new_pair();
+                tokio::pin!(cancel_future);
 
                 let activity = Activity::new(
                     data.activity_name.to_string(),
@@ -230,6 +235,7 @@ async fn activity_create(ctx: &Context, original_msg: &Message) -> CommandResult
                     data.size,
                     original_msg.author.id,
                     data.message.clone(),
+                    cancel_token,
                 );
 
                 match guild_data.add_activity(activity) {
@@ -256,38 +262,14 @@ async fn activity_create(ctx: &Context, original_msg: &Message) -> CommandResult
 
                 drop(type_map);
 
-                tokio::time::sleep(duration_until_start).await;
-                let mut type_map = ctx.data.write().await;
+                let sleep = tokio::time::sleep(duration_until_start);
+                tokio::pin!(sleep);
 
-                if let Some(guild_map) = type_map.get_mut::<data_keys::GetGuildData>() {
-                    if let Some(guild_data) = guild_map.get_mut(&id.0) {
-                        if let Some(activity) = guild_data.remove_activity(activity_id) {
-                            if !activity.members.is_empty() {
-                                let member_count = activity.members.len();
-
-                                let mention_string = activity
-                                    .members
-                                    .into_iter()
-                                    .enumerate()
-                                    .map(|(idx, user)| {
-                                        if idx == 0 {
-                                            Mention::from(user).to_string()
-                                        } else if idx == member_count - 1 {
-                                            format!(", and {}", Mention::from(user))
-                                        } else {
-                                            format!(", {}", Mention::from(user))
-                                        }
-                                    })
-                                    .collect::<String>();
-
-                                let content = format!(
-                                    "Hey {}! {} is starting now. Good luck and have fun!",
-                                    mention_string, activity.name
-                                );
-
-                                activity.embed_msg.channel_id.say(ctx, content).await?;
-                            }
-                        }
+                tokio::select! {
+                    _ = &mut cancel_future => (),
+                    _ = &mut sleep => {
+                        let mut type_map = ctx.data.write().await;
+                        imp::start_activity(ctx, &mut type_map, guild_id_val, activity_id).await?;
                     }
                 }
             }
@@ -516,6 +498,237 @@ async fn activity_leave(ctx: &Context, original_msg: &Message, mut args: Args) -
     Ok(())
 }
 
+async fn activity_edit(ctx: &Context, original_msg: &Message, mut args: Args) -> CommandResult {
+    let activity_id_opt = args
+        .advance()
+        .current()
+        .map(|string| string.parse::<u64>().ok())
+        .flatten();
+
+    let activity_id = match activity_id_opt {
+        Some(id) => id,
+        None => {
+            imp::send_error_message(ctx, original_msg, "Invalid activity ID.").await?;
+            return Ok(());
+        }
+    };
+
+    let guild_id = match original_msg.guild_id {
+        Some(id) => id,
+        None => {
+            imp::send_error_message(ctx, original_msg, "This command is not supported in DMs.")
+                .await?;
+            return Ok(());
+        }
+    };
+
+    let mut type_map = ctx.data.write().await;
+
+    let embed_map = match type_map.get::<data_keys::GetEmbedMap>() {
+        Some(map) => map.clone(),
+        None => {
+            original_msg
+                .channel_id
+                .say(ctx, "Embed map was not registered.")
+                .await?;
+            return Ok(());
+        }
+    };
+
+    let guild_data_map = type_map.entry::<data_keys::GetGuildData>().or_default();
+    let guild_data = guild_data_map
+        .entry(guild_id.0)
+        .or_insert_with(|| GuildData::new(guild_id));
+
+    match guild_data.activity(activity_id) {
+        Some(activity) => {
+            let mut activity = activity.clone();
+
+            drop(type_map);
+
+            let timeout = Duration::from_secs(120);
+
+            let creator_id = activity.creator;
+
+            if original_msg.author.id == creator_id {
+                let time_embed = match embed_map.get("activity_roster_time") {
+                    Some(embed) => embed,
+                    None => {
+                        imp::send_error_message(ctx, original_msg, "An error has occurred getting embed `activity_roster_time`. Please contact Factorial about this.").await?;
+                        return Ok(());
+                    }
+                };
+
+                let mut embed_msg = original_msg
+                    .channel_id
+                    .send_message(ctx, |msg| {
+                        msg.embed(|embed| {
+                            *embed = imp::create_embed(&time_embed.embed);
+                            embed
+                        })
+                    })
+                    .await?;
+
+                let (date_time, date_time_str) = loop {
+                    let collector = embed_msg
+                        .channel_id
+                        .await_reply(ctx)
+                        .author_id(original_msg.author.id)
+                        .timeout(timeout);
+
+                    let time_message = match collector.await {
+                        Some(message) => message,
+                        None => {
+                            imp::send_error_message(ctx, original_msg, format!("You did not send a reply in time. Please reply within {} minutes", timeout.as_secs() / 60)).await?;
+                            return Ok(());
+                        }
+                    };
+
+                    match imp::parse_date_time(&time_message.content) {
+                        Some((date_time, date_time_str)) => {
+                            time_message.delete(ctx).await?;
+                            break (date_time, date_time_str);
+                        }
+                        None => {
+                            imp::send_error_message(ctx, &time_message, "Please enter a valid date and time in the format `mm/dd/yyyy hh:mm am|pm`").await?;
+                        }
+                    }
+                };
+
+                let description_embed = match embed_map.get("activity_roster_description") {
+                    Some(embed) => embed,
+                    None => {
+                        imp::send_error_message(ctx, original_msg, "An error has occurred getting embed `activity_roster_description`. Please contact Factorial about this.").await?;
+                        return Ok(());
+                    }
+                };
+
+                embed_msg
+                    .edit(ctx, |msg| {
+                        msg.embed(|embed| {
+                            *embed = imp::create_embed(&description_embed.embed);
+                            embed
+                        })
+                    })
+                    .await?;
+
+                let description = loop {
+                    let collector = embed_msg
+                        .channel_id
+                        .await_reply(ctx)
+                        .author_id(original_msg.author.id)
+                        .timeout(timeout);
+
+                    let description_message = match collector.await {
+                        Some(message) => message,
+                        None => {
+                            imp::send_error_message(ctx, original_msg, format!("You did not send a reply in time. Please reply within {} minutes", timeout.as_secs() / 60)).await?;
+                            return Ok(());
+                        }
+                    };
+
+                    let safe_content = description_message.content_safe(ctx).await;
+
+                    if safe_content.len() <= 1024 {
+                        description_message.delete(ctx).await?;
+                        break safe_content;
+                    } else {
+                        imp::send_error_message(
+                            ctx,
+                            &description_message,
+                            "Please enter a description that is less than or equal to 1024 characters.",
+                        )
+                            .await?;
+                    }
+                };
+
+                let (cancel_future, cancel_token) = CancelActivity::new_pair();
+                tokio::pin!(cancel_future);
+
+                activity.date = date_time_str;
+                activity.description = description;
+                activity.cancel_token = cancel_token;
+
+                let activity_embed = activity.as_create_embed(0x212121);
+
+                activity
+                    .embed_msg
+                    .edit(ctx, |msg| {
+                        msg.embed(|embed| {
+                            *embed = activity_embed;
+                            embed
+                        })
+                    })
+                    .await?;
+
+                embed_msg.delete(ctx).await?;
+
+                let mut type_map = ctx.data.write().await;
+                let guild_data_map = type_map.entry::<data_keys::GetGuildData>().or_default();
+                let guild_data = guild_data_map.entry(guild_id.0).or_default();
+
+                let old_activity = match guild_data.activity_mut(activity_id) {
+                    Some(activity) => activity,
+                    None => {
+                        imp::send_error_message(ctx, original_msg, "Could not get the old activity from GuildData. Please contact Factorial about this.").await?;
+                        return Ok(());
+                    }
+                };
+
+                original_msg
+                    .channel_id
+                    .say(
+                        ctx,
+                        format!(
+                            "Activity {} ({}) updated successfully.",
+                            activity.id, activity.name
+                        ),
+                    )
+                    .await?;
+
+                *old_activity = activity;
+
+                drop(type_map);
+
+                let date_time_now =
+                    FixedOffset::west(4 * 3600).from_utc_datetime(&Utc::now().naive_utc());
+                let duration_until_start = match (date_time - date_time_now).to_std() {
+                    Ok(duration) => duration,
+                    Err(_) => {
+                        imp::send_error_message(
+                            ctx,
+                            original_msg,
+                            "Invalid date and time. Please enter a valid date and time that is in the future.",
+                        )
+                            .await?;
+                        return Ok(());
+                    }
+                };
+
+                let sleep = tokio::time::sleep(duration_until_start);
+                tokio::pin!(sleep);
+
+                tokio::select! {
+                    _ = &mut cancel_future => (),
+                    _ = &mut sleep => {
+                        let mut type_map = ctx.data.write().await;
+                        imp::start_activity(ctx, &mut type_map, guild_id, activity_id).await?;
+                    }
+                }
+            } else {
+                imp::send_error_message(ctx, original_msg, "You cannot edit that activity.")
+                    .await?;
+            }
+
+            Ok(())
+        }
+        None => {
+            imp::send_error_message(ctx, original_msg, "Invalid activity ID.").await?;
+            Ok(())
+        }
+    }
+}
+
 async fn activity_delete(ctx: &Context, original_msg: &Message, mut args: Args) -> CommandResult {
     let activity_id_opt = args
         .advance()
@@ -559,6 +772,9 @@ async fn activity_delete(ctx: &Context, original_msg: &Message, mut args: Args) 
         let activity_opt = guild_data.remove_activity(activity_id);
 
         if let Some(activity) = activity_opt {
+            if !activity.cancel_token.cancel() {
+                eprintln!("Error: Could not cancel Activity {}: {}. It may leak memory until the duration times out.", activity_id, activity.name);
+            }
             activity.embed_msg.delete(ctx).await?;
             original_msg
                 .channel_id
