@@ -1,6 +1,7 @@
 mod client;
 mod command;
 mod config;
+mod util;
 
 use structopt::StructOpt as _;
 
@@ -8,7 +9,6 @@ use crate::config::BotConfig;
 use client::BotBuilder;
 use config::ConfigMode;
 use rand::Rng;
-use serenity::model::id::StickerId;
 use serenity::model::prelude::UserId;
 use serenity::{
     framework::standard::{macros::hook, CommandGroup},
