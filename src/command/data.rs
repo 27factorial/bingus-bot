@@ -6,6 +6,7 @@ use std::{
     time::Duration,
 };
 
+use crate::util::ActivityToken;
 use serde::{Deserialize, Serialize};
 use serenity::{
     builder::CreateEmbed,
@@ -106,6 +107,7 @@ pub struct Activity {
     pub size: u8,
     pub creator: UserId,
     pub embed_msg: Message,
+    pub cancel_token: ActivityToken,
     pub members: HashSet<UserId>,
     pub alternate: Vec<UserId>,
 }
@@ -119,6 +121,7 @@ impl Activity {
         size: u8,
         creator: UserId,
         embed_msg: Message,
+        cancel_token: ActivityToken,
     ) -> Self {
         let name = name.to_string();
         let description = description.to_string();
@@ -132,6 +135,7 @@ impl Activity {
             size,
             creator,
             embed_msg,
+            cancel_token,
             members: HashSet::with_capacity(size as usize),
             alternate: Vec::with_capacity(size as usize),
         }
