@@ -48,7 +48,7 @@ async fn activity(ctx: &Context, original_msg: &Message, args: Args) -> CommandR
             imp::send_error_message(
                 ctx,
                 original_msg,
-                "Invalid subcommand. Valid subcommands are `create`, `join`, `alt`, `leave`, `edit`, and `delete`.",
+                "Invalid subcommand. Valid subcommands are `create`, `join`, `alt`, `leave`, `edit`, `delete`, and `list`.",
             )
             .await?;
             Ok(())
