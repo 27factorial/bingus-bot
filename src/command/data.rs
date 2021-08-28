@@ -78,6 +78,10 @@ impl GuildData {
     pub fn activity_mut(&mut self, id: u64) -> Option<&mut Activity> {
         self.activities.get_mut(&id)
     }
+    
+    pub fn activities(&self) -> &HashMap<u64, Activity> {
+        &self.activities
+    }
 
     pub fn activity_id(&self) -> u64 {
         self.free_activity_ids
