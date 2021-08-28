@@ -55,14 +55,14 @@ examples and a structure example:
 
 ~activity join 0
 
-~admin activity_manage delete 0
+~admin activity delete 0
 
 ~owner add_admins 141728791461494786 815012009993175090
 
-prefix   additional   command           param1   param2              param3
-|        |            |                 |        |                   |
-V        V            V                 V        V                   V
-~        admin        activity_manage   add      815012009993175090  0
+prefix   additional   command   param1   param2              param3
+|        |            |         |        |                   |
+V        V            V         V        V                   V
+~        admin        activity  add      815012009993175090  0
 ```
 
 Spaces are not required between the prefix and commands, but should be used in the case where additional text is
@@ -88,20 +88,26 @@ required to run the command.
 - `activity delete <id>` - Deletes an activity with the specified ID. Members who had previously joined the activity
   will not be pinged when the activity was intended to start. Only the person who created the activity can use this
   command.
+
+- `activity edit <id>` - Edits an activity with the specified ID. This will allow you to change the activity's
+  description and start time. Only the person who created the activity can use this command.
+  
+- `activity list <page>` - Lists all currently scheduled activities in the guild this command is run in. Each page
+  lists three activities, and activities are ordered by ID.
   
 ### Administrator Commands
 ##### Additional prefix: `admin`
 
-- `activity_manage add <user id> <act. id>` - Adds the specified user to the main fireteam of the activity with the 
+- `activity add <user id> <act. id>` - Adds the specified user to the main fireteam of the activity with the 
   specified ID.
   
-- `activity_manage alt <user id> <act. id>` - Adds the specified user to the alternate fireteam of the activity with the 
+- `activity alt <user id> <act. id>` - Adds the specified user to the alternate fireteam of the activity with the 
   specified ID.
   
-- `activity_manage remove <user id> <act. id>` - Removes the specified user from either the main or alternate fireteam
+- `activity remove <user id> <act. id>` - Removes the specified user from either the main or alternate fireteam
   of the activity with the specified ID.
   
-- `activity_manage delete <act. id>` - Deletes the activity with the specified ID. Members who had previously joined the
+- `activity delete <act. id>` - Deletes the activity with the specified ID. Members who had previously joined the
   activity will not be pinged when the activity was intended to start. Any admin users can run this command on any
   activity.
   
