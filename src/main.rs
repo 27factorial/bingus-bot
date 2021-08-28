@@ -43,15 +43,6 @@ async fn main() -> anyhow::Result<()> {
 
 #[hook]
 async fn handle_normal(ctx: &Context, msg: &Message) {
-    let based = "Based? Based on what? On your dick? Please shut the fuck up and use words properly you fuckin \
-        troglodyte, do you think God gave us a freedom of speech just to spew random words that have no meaning that \
-        doesn't even correllate to the topic of the conversation? Like please you always complain about why no one \
-        talks to you or no one expresses their opinions on you because you're always spewing random shit like poggers \
-        based cringe and when you try to explain what it is and you just say that it's funny like what? What the fuck \
-        is funny about that do you think you'll just become a stand-up comedian that will get a standing ovation just \
-        because you said \"cum\" in the stage? HELL NO YOU FUCKIN IDIOT, so please shut the fuck up and use words \
-        properly you dumb bitch";
-
     let no_links = [
         "https://cdn.discordapp.com/attachments/761023449572311071/870117652000030731/az9og6Z_460swp.png",
         "https://cdn.discordapp.com/attachments/820186217974595595/875553389654712340/no-no-93.png",
@@ -99,14 +90,6 @@ async fn handle_normal(ctx: &Context, msg: &Message) {
 
         if let Err(e) = res {
             eprintln!("Error replying to bingus {:?}", e);
-        }
-    }
-
-    if msg.content.to_ascii_lowercase().contains("based") {
-        let res = msg.channel_id.say(&ctx, based).await;
-
-        if let Err(e) = res {
-            eprintln!("Error replying to based {:?}", e);
         }
     }
 
