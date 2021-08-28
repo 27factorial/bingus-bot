@@ -4,6 +4,9 @@ use crate::command::imp;
 use crate::command::imp::data_keys;
 use crate::util::CancelActivity;
 use chrono::{FixedOffset, TimeZone, Utc};
+use itertools::Itertools;
+use serenity::builder::CreateEmbed;
+use serenity::model::misc::Mention;
 use serenity::{
     framework::standard::{
         macros::{command, group},
@@ -40,6 +43,7 @@ async fn activity(ctx: &Context, original_msg: &Message, args: Args) -> CommandR
         "leave" => activity_leave(ctx, original_msg, args).await,
         "edit" => activity_edit(ctx, original_msg, args).await,
         "delete" => activity_delete(ctx, original_msg, args).await,
+        "list" => activity_list(ctx, original_msg, args).await,
         _ => {
             imp::send_error_message(
                 ctx,
@@ -782,6 +786,166 @@ async fn activity_delete(ctx: &Context, original_msg: &Message, mut args: Args) 
         }
     } else {
         imp::send_error_message(ctx, original_msg, "You cannot delete that activity.").await?;
+    }
+
+    Ok(())
+}
+
+async fn activity_list(ctx: &Context, original_msg: &Message, mut args: Args) -> CommandResult {
+    let guild_id = match original_msg.guild_id {
+        Some(id) => id,
+        None => {
+            imp::send_error_message(ctx, original_msg, "This command is not supported in DMs.")
+                .await?;
+            return Ok(());
+        }
+    };
+
+    let page_opt = args
+        .advance()
+        .current()
+        .map(|string| string.parse::<u64>().ok())
+        .flatten();
+
+    let page = match page_opt {
+        Some(p) => {
+            if p == 0 {
+                0
+            } else {
+                p - 1
+            }
+        }
+        None => {
+            imp::send_error_message(ctx, original_msg, "Invalid page number.").await?;
+            return Ok(());
+        }
+    };
+
+    let type_map = ctx.data.read().await;
+
+    let guild_data_map = match type_map.get::<data_keys::GetGuildData>() {
+        Some(map) => map,
+        None => {
+            imp::send_error_message(
+                ctx,
+                original_msg,
+                "No activities have been created in this server. Be the first to make one!",
+            )
+            .await?;
+            return Ok(());
+        }
+    };
+
+    let guild_data = match guild_data_map.get(&guild_id.0) {
+        Some(data) => data,
+        None => {
+            imp::send_error_message(
+                ctx,
+                original_msg,
+                "No activities have been created in this server. Be the first to make one!",
+            )
+            .await?;
+            return Ok(());
+        }
+    };
+
+    let activities = guild_data
+        .activities()
+        .iter()
+        .sorted_by(|&(&a, _), &(&b, _)| a.cmp(&b))
+        .map(|(_, activity)| activity)
+        .collect::<Vec<_>>();
+
+    let chunks = activities.chunks(3).collect::<Vec<_>>();
+
+    if activities.is_empty() {
+        imp::send_error_message(
+            ctx,
+            original_msg,
+            "No activities are currently scheduled in this server.",
+        )
+        .await?;
+    } else {
+        let list_page = chunks.get(page as usize);
+
+        match list_page {
+            Some(activities) => {
+                let mut list_embed = CreateEmbed::default();
+
+                for &activity in activities.iter() {
+                    let members_string = if !activity.members.is_empty() {
+                        activity
+                            .members
+                            .iter()
+                            .copied()
+                            .enumerate()
+                            .map(|(idx, id)| {
+                                if idx == 0 {
+                                    Mention::from(id).to_string()
+                                } else {
+                                    let mention = Mention::from(id).to_string();
+                                    format!(", {}", mention)
+                                }
+                            })
+                            .collect::<String>()
+                    } else {
+                        String::from("None")
+                    };
+
+                    let alternate_string = if !activity.alternate.is_empty() {
+                        activity
+                            .alternate
+                            .iter()
+                            .copied()
+                            .enumerate()
+                            .map(|(idx, id)| {
+                                if idx == 0 {
+                                    Mention::from(id).to_string()
+                                } else {
+                                    let mention = Mention::from(id).to_string();
+                                    format!(", {}", mention)
+                                }
+                            })
+                            .collect::<String>()
+                    } else {
+                        String::from("None")
+                    };
+
+                    list_embed
+                        .field("Activity:", &activity.name, true)
+                        .field("Time:", &activity.date, true)
+                        .field("Activity ID:", activity.id, true)
+                        .field("Description:", &activity.description, false)
+                        .field("Member List:", members_string, false)
+                        .field("Alternate Members:", alternate_string, false);
+                }
+
+                list_embed
+                    .title("Activity List")
+                    .footer(|footer| footer.text(format!("Page {}/{}", page + 1, chunks.len())));
+
+                original_msg
+                    .channel_id
+                    .send_message(ctx, |msg| {
+                        msg.embed(|embed| {
+                            *embed = list_embed;
+                            embed
+                        })
+                    })
+                    .await?;
+            }
+            None => {
+                imp::send_error_message(
+                    ctx,
+                    original_msg,
+                    format!(
+                        "That page number is out of range. The maximum page number is {}",
+                        chunks.len()
+                    ),
+                )
+                .await?;
+            }
+        }
     }
 
     Ok(())
