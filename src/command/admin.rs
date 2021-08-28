@@ -36,11 +36,12 @@ async fn activity(ctx: &Context, original_msg: &Message, args: Args) -> CommandR
             "alt" => admin_activity_alt(ctx, original_msg, args).await?,
             "remove" => admin_activity_remove(ctx, original_msg, args).await?,
             "delete" => admin_activity_delete(ctx, original_msg, args).await?,
+            "start" => admin_activity_start(ctx, original_msg, args).await?,
             _ => {
                 imp::send_error_message(
                     ctx,
                     original_msg,
-                    "Invalid subcommand. Valid subcommands are `add`, `alt`, `remove`, `delete`.",
+                    "Invalid subcommand. Valid subcommands are `add`, `alt`, `remove`, `delete`, and `start`.",
                 )
                 .await?;
             }
@@ -356,6 +357,7 @@ async fn admin_activity_delete(
     let activity_opt = guild_data.remove_activity(activity_id);
     if let Some(activity) = activity_opt {
         activity.embed_msg.delete(ctx).await?;
+        activity.cancel_token.cancel();
         original_msg
             .channel_id
             .say(
@@ -366,6 +368,57 @@ async fn admin_activity_delete(
     }
 
     Ok(())
+}
+
+async fn admin_activity_start(
+    ctx: &Context,
+    original_msg: &Message,
+    mut args: Args,
+) -> CommandResult {
+    let activity_id_opt = args
+        .advance()
+        .current()
+        .map(|string| string.parse::<u64>().ok())
+        .flatten();
+
+    let activity_id = match activity_id_opt {
+        Some(id) => id,
+        None => {
+            imp::send_error_message(ctx, original_msg, "Invalid activity ID.").await?;
+            return Ok(());
+        }
+    };
+
+    let guild_id = match original_msg.guild_id {
+        Some(id) => id,
+        None => {
+            imp::send_error_message(ctx, original_msg, "This command is not supported in DMs.")
+                .await?;
+            return Ok(());
+        }
+    };
+
+    let mut type_map = ctx.data.write().await;
+
+    let guild_data_map = type_map.entry::<data_keys::GetGuildData>().or_default();
+    let guild_data = guild_data_map
+        .entry(guild_id.0)
+        .or_insert_with(|| GuildData::new(guild_id));
+
+    let activity_opt = guild_data.activity(activity_id);
+
+    let activity_id = match activity_opt {
+        Some(activity) => {
+            activity.cancel_token.cancel();
+            activity.id
+        }
+        None => {
+            imp::send_error_message(ctx, original_msg, "Invalid activity ID.").await?;
+            return Ok(());
+        }
+    };
+
+    Ok(imp::start_activity(ctx, &mut type_map, guild_id, activity_id).await?)
 }
 
 #[command]
