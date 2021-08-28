@@ -16,6 +16,11 @@
           "inline": false,
           "name": ":two: Jackbox",
           "value": "Create an activity roster for Jackbox."
+        },
+        {
+          "inline": false,
+          "name": ":three: Other",
+          "value": "Create and activity roster for another game. Please describe the activity in the description."
         }
       ],
       "type": "rich"
@@ -32,6 +37,15 @@
         "kind": {
           "Finished": {
             "activity_name": "Jackbox",
+            "size": 8
+          }
+        }
+      },
+      {
+        "name": "3️⃣",
+        "kind": {
+          "Finished": {
+            "activity_name": "Other (Check Description)",
             "size": 255
           }
         }
@@ -472,32 +486,42 @@
       "fields": [
         {
           "inline": false,
-          "name": ":one: Override",
+          "name": ":one: Astral Alignment",
+          "value": "Use the Wayfinder's Compass to fight back Xivu Arath's Taken forces and help Savathûn escape the shackles of her Worm."
+        },
+        {
+          "inline": false,
+          "name": ":two: Shattered Realm",
+          "value": "Delve into the Ascendant Plane to rescure Mara Sov's Techeuns from the Taken."
+        },
+        {
+          "inline": false,
+          "name": ":three: Override",
           "value": "Ally with the House Light Kell, Mithrax, and splice into the Vex network to take down the Vex Mind from within."
         },
         {
           "inline": false,
-          "name": ":two: Expunge",
+          "name": ":four: Expunge",
           "value": "Infiltrate the Vex network to uncover the secrets of the Vex and the Taken."
         },
         {
           "inline": false,
-          "name": ":three: Battlegrounds",
+          "name": ":five: Battlegrounds",
           "value": "Challenge the Cabal to the gladiatorial Rite of Proving, and defeat Caiatl's to-be War Councillors."
         },
         {
           "inline": false,
-          "name": ":four: Presage",
+          "name": ":six: Presage",
           "value": "Uncover the secrets of the Emperor's carrier ship, the Glykon, and investigate a Guardian's distress signal."
         },
         {
           "inline": false,
-          "name": ":five: Wrathborn Hunts",
-          "value": "Use a specially designed lure to hunt down and defeat Xivu Arath's minions known only as the Wrathborn. (This sounds better than it is, trust me.)"
+          "name": ":seven: Wrathborn Hunts",
+          "value": "Use a specially designed lure to hunt down and defeat Xivu Arath's minions known only as the Wrathborn. (This sounds better than it is. Trust me.)"
         },
         {
           "inline": false,
-          "name": ":six: Harbinger",
+          "name": ":eight: Harbinger",
           "value": "Follow the paracausal Hawk deep into the EDZ to drive the Emissaries of Savathûn away from the shard of the Traveler."
         }
       ],
@@ -514,7 +538,7 @@
         "name": "1️⃣",
         "kind": {
           "Finished": {
-            "activity_name": "Override",
+            "activity_name": "Astral Alignment",
             "size": 6
           }
         }
@@ -523,7 +547,7 @@
         "name": "2️⃣",
         "kind": {
           "Finished": {
-            "activity_name": "Expunge",
+            "activity_name": "Shattered Realm",
             "size": 3
           }
         }
@@ -532,8 +556,8 @@
         "name": "3️⃣",
         "kind": {
           "Finished": {
-            "activity_name": "Battlegrounds",
-            "size": 3
+            "activity_name": "Override",
+            "size": 6
           }
         }
       },
@@ -541,7 +565,7 @@
         "name": "4️⃣",
         "kind": {
           "Finished": {
-            "activity_name": "Presage",
+            "activity_name": "Expunge",
             "size": 3
           }
         }
@@ -550,13 +574,31 @@
         "name": "5️⃣",
         "kind": {
           "Finished": {
-            "activity_name": "Wrathborn Hunts",
+            "activity_name": "Battlegrounds",
             "size": 3
           }
         }
       },
       {
         "name": "6️⃣",
+        "kind": {
+          "Finished": {
+            "activity_name": "Presage",
+            "size": 3
+          }
+        }
+      },
+      {
+        "name": "7️⃣",
+        "kind": {
+          "Finished": {
+            "activity_name": "Wrathborn Hunts",
+            "size": 3
+          }
+        }
+      },
+      {
+        "name": "8️⃣",
         "kind": {
           "Finished": {
             "activity_name": "Harbinger",
