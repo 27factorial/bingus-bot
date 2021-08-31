@@ -9,10 +9,10 @@ use serenity::{
 
 use crate::command::data::{ActivityError, GuildData};
 use crate::command::imp::{self, data_keys};
+use serenity::model::misc::Mention;
 use serenity::model::prelude::UserId;
 
 #[group]
-#[owners_only]
 #[prefix("admin")]
 #[commands(activity, nick)]
 struct AdminsOnly;
@@ -37,11 +37,12 @@ async fn activity(ctx: &Context, original_msg: &Message, args: Args) -> CommandR
             "remove" => admin_activity_remove(ctx, original_msg, args).await?,
             "delete" => admin_activity_delete(ctx, original_msg, args).await?,
             "start" => admin_activity_start(ctx, original_msg, args).await?,
+            "ping" => admin_activity_ping(ctx, original_msg, args).await?,
             _ => {
                 imp::send_error_message(
                     ctx,
                     original_msg,
-                    "Invalid subcommand. Valid subcommands are `add`, `alt`, `remove`, `delete`, and `start`.",
+                    "Invalid subcommand. Valid subcommands are `add`, `alt`, `remove`, `delete`, `start`, and `ping`.",
                 )
                 .await?;
             }
@@ -419,6 +420,75 @@ async fn admin_activity_start(
     };
 
     Ok(imp::start_activity(ctx, &mut type_map, guild_id, activity_id).await?)
+}
+
+async fn admin_activity_ping(
+    ctx: &Context,
+    original_msg: &Message,
+    mut args: Args,
+) -> CommandResult {
+    let activity_id_opt = args
+        .advance()
+        .current()
+        .map(|string| string.parse::<u64>().ok())
+        .flatten();
+
+    let activity_id = match activity_id_opt {
+        Some(id) => id,
+        None => {
+            imp::send_error_message(ctx, original_msg, "Invalid activity ID.").await?;
+            return Ok(());
+        }
+    };
+
+    let guild_id = match original_msg.guild_id {
+        Some(id) => id,
+        None => {
+            imp::send_error_message(ctx, original_msg, "This command is not supported in DMs.")
+                .await?;
+            return Ok(());
+        }
+    };
+
+    let mut type_map = ctx.data.write().await;
+
+    let guild_data_map = type_map.entry::<data_keys::GetGuildData>().or_default();
+    let guild_data = guild_data_map
+        .entry(guild_id.0)
+        .or_insert_with(|| GuildData::new(guild_id));
+
+    let activity_opt = guild_data.activity(activity_id);
+    match activity_opt {
+        Some(activity) => {
+            if !activity.members.is_empty() {
+                let member_count = activity.members.len();
+
+                let mention_string = activity
+                    .members
+                    .iter()
+                    .enumerate()
+                    .map(|(idx, &user)| {
+                        if idx == 0 {
+                            Mention::from(user).to_string()
+                        } else if idx == member_count - 1 {
+                            format!(", and {}", Mention::from(user))
+                        } else {
+                            format!(", {}", Mention::from(user))
+                        }
+                    })
+                    .collect::<String>();
+
+                let content = format!("{}", mention_string);
+
+                activity.embed_msg.channel_id.say(ctx, content).await?;
+            }
+        }
+        None => {
+            imp::send_error_message(ctx, original_msg, "Invalid activity ID.").await?;
+        }
+    }
+
+    Ok(())
 }
 
 #[command]
