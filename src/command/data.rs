@@ -78,7 +78,7 @@ impl GuildData {
     pub fn activity_mut(&mut self, id: u64) -> Option<&mut Activity> {
         self.activities.get_mut(&id)
     }
-    
+
     pub fn activities(&self) -> &HashMap<u64, Activity> {
         &self.activities
     }
@@ -164,8 +164,12 @@ impl Activity {
 
             match idx {
                 Some(idx) => {
-                    self.alternate.remove(idx);
-                    self.members.insert(member);
+                    if self.members.len() < self.size as usize {
+                        self.alternate.remove(idx);
+                        self.members.insert(member);
+                    } else {
+                        return Err(ActivityError::MemberListFull);
+                    }
                     Ok(())
                 }
                 None => Err(ActivityError::MemberNotInAlternate),
