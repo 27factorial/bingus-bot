@@ -142,7 +142,7 @@ pub(crate) fn parse_date_time(date_time_str: &str) -> Option<(DateTime<FixedOffs
         return None;
     }
 
-    let date_time = FixedOffset::west(4 * 3600)
+    let date_time = FixedOffset::west(5 * 3600)
         .ymd(year_value, month_value, day_value)
         .and_hms(hour_value, minute_value, 0);
 
