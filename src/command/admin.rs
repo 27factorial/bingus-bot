@@ -17,7 +17,7 @@ use serenity::model::prelude::UserId;
 
 #[group]
 #[prefix("admin")]
-#[commands(activity, nick)]
+#[commands(activity, echo, nick)]
 struct AdminsOnly;
 
 #[command]
@@ -51,6 +51,18 @@ async fn activity(ctx: &Context, original_msg: &Message, args: Args) -> CommandR
                 .await?;
             }
         }
+    }
+
+    Ok(())
+}
+
+#[command]
+async fn echo(ctx: &Context, original_msg: &Message, args: Args) -> CommandResult {
+    if imp::is_admin(ctx, original_msg.author.id).await {
+        let bingus_message = args.raw().collect::<Vec<&str>>().join(" ");
+
+        original_msg.delete(ctx).await?;
+        original_msg.channel_id.say(ctx, bingus_message).await?;
     }
 
     Ok(())
