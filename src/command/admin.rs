@@ -68,6 +68,29 @@ async fn echo(ctx: &Context, original_msg: &Message, args: Args) -> CommandResul
     Ok(())
 }
 
+#[command]
+async fn pin(ctx: &Context, original_msg: &Message, args: Args) -> CommandResult {
+    if imp::is_admin(ctx, original_msg.author.id).await {
+        let id_opt = args
+            .current()
+            .map(|string| string.parse::<u64>().ok())
+            .flatten();
+
+        let id = match id_opt {
+            Some(id) => id,
+            None => {
+                imp::send_error_message(ctx, original_msg, "Please enter a valid message ID")
+                    .await?;
+                return Ok(());
+            }
+        };
+
+        original_msg.channel_id.pin(ctx, id).await?;
+    }
+
+    Ok(())
+}
+
 async fn admin_activity_add(
     ctx: &Context,
     original_msg: &Message,
