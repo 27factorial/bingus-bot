@@ -1,4 +1,5 @@
 use chrono::{FixedOffset, TimeZone, Utc};
+use serenity::model::id::ChannelId;
 use serenity::{
     framework::standard::{
         macros::{command, group},
@@ -57,12 +58,28 @@ async fn activity(ctx: &Context, original_msg: &Message, args: Args) -> CommandR
 }
 
 #[command]
-async fn echo(ctx: &Context, original_msg: &Message, args: Args) -> CommandResult {
+async fn echo(ctx: &Context, original_msg: &Message, mut args: Args) -> CommandResult {
     if imp::is_admin(ctx, original_msg.author.id).await {
-        let bingus_message = args.raw().collect::<Vec<&str>>().join(" ");
+        let channel_id = match args
+            .current()
+            .map(|string| string.parse::<u64>().ok())
+            .flatten()
+        {
+            Some(id) => id,
+            None => {
+                imp::send_error_message(ctx, original_msg, "Please provide a valid channel ID.")
+                    .await?;
+                return Ok(());
+            }
+        };
+        let bingus_message = args
+            .advance()
+            .iter::<String>()
+            .map(|res| res.unwrap())
+            .collect::<Vec<String>>()
+            .join(" ");
 
-        original_msg.delete(ctx).await?;
-        original_msg.channel_id.say(ctx, bingus_message).await?;
+        ChannelId::from(channel_id).say(ctx, bingus_message).await?;
     }
 
     Ok(())
