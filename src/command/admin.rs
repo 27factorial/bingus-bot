@@ -1,5 +1,13 @@
+use crate::command::data::{ActivityError, GuildData};
+use crate::command::imp::{self, data_keys};
+use crate::util::CancelActivity;
 use chrono::{FixedOffset, TimeZone, Utc};
+use futures::StreamExt;
+use serenity::model::channel::ChannelType;
 use serenity::model::id::ChannelId;
+use serenity::model::misc::Mention;
+use serenity::model::prelude::{User, UserId};
+use serenity::model::Permissions;
 use serenity::{
     framework::standard::{
         macros::{command, group},
@@ -8,17 +16,12 @@ use serenity::{
     model::channel::Message,
     prelude::Context,
 };
+use std::collections::HashMap;
 use std::time::Duration;
-
-use crate::command::data::{ActivityError, GuildData};
-use crate::command::imp::{self, data_keys};
-use crate::util::CancelActivity;
-use serenity::model::misc::Mention;
-use serenity::model::prelude::UserId;
 
 #[group]
 #[prefix("admin")]
-#[commands(activity, echo, pin, nick)]
+#[commands(activity, echo, pin, buildcache, nick)]
 struct AdminsOnly;
 
 #[command]
@@ -53,6 +56,68 @@ async fn activity(ctx: &Context, original_msg: &Message, args: Args) -> CommandR
             }
         }
     }
+
+    Ok(())
+}
+
+#[command]
+async fn buildcache(ctx: &Context, original_msg: &Message) -> CommandResult {
+    let guild_id = match original_msg.guild_id {
+        Some(id) => id,
+        None => {
+            imp::send_error_message(ctx, original_msg, "This command is not supported in DMs.")
+                .await?;
+            return Ok(());
+        }
+    };
+
+    let text_channels = guild_id
+        .channels(ctx)
+        .await?
+        .into_iter()
+        .filter(|(_, channel)| channel.kind == ChannelType::Text);
+
+    let mut allowed_channel_ids = Vec::new();
+
+    let bot_user_id = ctx.cache.current_user_id().await;
+
+    for (id, channel) in text_channels {
+        if let Ok(perms) = channel.permissions_for_user(ctx, bot_user_id).await {
+            if perms.contains(Permissions::READ_MESSAGE_HISTORY) {
+                allowed_channel_ids.push(id)
+            }
+        }
+    }
+
+    original_msg.channel_id.say(ctx, "Please wait for me to cache the messages from this server before using any markov commands. This might take a while.").await?;
+
+    let mut user_messages: HashMap<UserId, Vec<String>> = HashMap::new();
+
+    for channel in allowed_channel_ids {
+        let mut messages = channel.messages_iter(ctx).boxed();
+
+        while let Some(Ok(message)) = messages.next().await {
+            user_messages
+                .entry(message.author.id)
+                .or_default()
+                .push(message.content_safe(ctx).await);
+        }
+    }
+
+    let mut data_guard = ctx.data.write().await;
+    let guild_map = data_guard
+        .entry::<imp::data_keys::GetGuildData>()
+        .or_default();
+    let guild_data = guild_map.entry(guild_id.0).or_default();
+
+    *guild_data.messages_mut() = user_messages;
+
+    original_msg
+        .reply_ping(
+            ctx,
+            "Server messages have been cached. This cache will be kept up-to-date.",
+        )
+        .await?;
 
     Ok(())
 }

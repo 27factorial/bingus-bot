@@ -7,6 +7,7 @@ use std::{
 };
 
 use crate::util::ActivityToken;
+use markov::Chain;
 use serde::{Deserialize, Serialize};
 use serenity::{
     builder::CreateEmbed,
@@ -19,12 +20,14 @@ use serenity::{
 };
 use std::fmt::Formatter;
 
-#[derive(Clone, Debug, Default)]
+#[derive(Debug, Default)]
 pub struct GuildData {
     guild_id: GuildId,
     activities: HashMap<u64, Activity>,
     next_activity_id: u64,
     free_activity_ids: Vec<u64>,
+    messages: HashMap<UserId, Vec<String>>,
+    markov: HashMap<String, MarkovInfo>,
 }
 
 impl GuildData {
@@ -34,6 +37,8 @@ impl GuildData {
             activities: HashMap::new(),
             next_activity_id: 0,
             free_activity_ids: Vec::new(),
+            messages: HashMap::new(),
+            markov: HashMap::new(),
         }
     }
 
@@ -88,6 +93,22 @@ impl GuildData {
             .first()
             .copied()
             .unwrap_or(self.next_activity_id)
+    }
+
+    pub fn messages(&self) -> &HashMap<UserId, Vec<String>> {
+        &self.messages
+    }
+
+    pub fn messages_mut(&mut self) -> &mut HashMap<UserId, Vec<String>> {
+        &mut self.messages
+    }
+
+    pub fn markov(&self) -> &HashMap<String, MarkovInfo> {
+        &self.markov
+    }
+
+    pub fn markov_mut(&mut self) -> &mut HashMap<String, MarkovInfo> {
+        &mut self.markov
     }
 }
 
@@ -467,6 +488,29 @@ pub struct RosterData {
     pub size: u8,
     pub message: Message,
     pub timeout: Option<Duration>,
+}
+
+#[derive(Debug)]
+pub struct MarkovInfo {
+    id: UserId,
+    chain: Chain<String>,
+}
+
+impl MarkovInfo {
+    pub fn new(id: UserId, order: usize) -> Self {
+        Self {
+            id,
+            chain: Chain::of_order(order),
+        }
+    }
+
+    pub fn feed_str(&mut self, s: &str) {
+        self.chain.feed_str(s);
+    }
+
+    pub fn gen_string(&self) -> String {
+        self.chain.generate_str()
+    }
 }
 
 mod helpers {

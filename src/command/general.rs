@@ -1,11 +1,12 @@
-use crate::command::data::ActivityError;
 use crate::command::data::{Activity, GuildData};
+use crate::command::data::{ActivityError, MarkovInfo};
 use crate::command::imp;
 use crate::command::imp::data_keys;
 use crate::util::CancelActivity;
 use chrono::{FixedOffset, TimeZone, Utc};
 use itertools::Itertools;
 use serenity::builder::CreateEmbed;
+use serenity::model::id::UserId;
 use serenity::model::misc::Mention;
 use serenity::{
     framework::standard::{
@@ -19,7 +20,7 @@ use std::time::Duration;
 
 #[group]
 #[description = "General, everyday commands."]
-#[commands(activity)]
+#[commands(activity, markov)]
 pub struct General;
 
 #[command]
@@ -945,6 +946,145 @@ async fn activity_list(ctx: &Context, original_msg: &Message, mut args: Args) ->
                 )
                 .await?;
             }
+        }
+    }
+
+    Ok(())
+}
+
+#[command]
+#[description = "Create, update a user's markov chain information. Used for sending messages that sound like the specified user."]
+async fn markov(ctx: &Context, original_msg: &Message, args: Args) -> CommandResult {
+    let subcommand = match args.current() {
+        Some(arg) => arg,
+        None => {
+            original_msg
+                .channel_id
+                .say(&ctx, "Please provide a subcommand.")
+                .await?;
+            return Ok(());
+        }
+    };
+
+    match subcommand {
+        "create" => markov_create(ctx, original_msg, args).await,
+        "say" => markov_say(ctx, original_msg, args).await,
+        _ => {
+            imp::send_error_message(
+                ctx,
+                original_msg,
+                "Invalid subcommand. Valid subcommands are `create` and `say`.",
+            )
+            .await?;
+            Ok(())
+        }
+    }
+}
+
+async fn markov_create(ctx: &Context, original_msg: &Message, mut args: Args) -> CommandResult {
+    let guild_id = match original_msg.guild_id {
+        Some(id) => id,
+        None => {
+            imp::send_error_message(ctx, original_msg, "This command is not supported in DMs.")
+                .await?;
+            return Ok(());
+        }
+    };
+
+    let user_id_opt = args
+        .advance()
+        .current()
+        .map(|s| s.parse::<u64>().ok())
+        .flatten();
+
+    let user_id = match user_id_opt {
+        Some(id) => id,
+        None => {
+            imp::send_error_message(ctx, original_msg, "Please provide a valid user ID.").await?;
+            return Ok(());
+        }
+    };
+
+    let alias = match args.advance().current() {
+        Some(s) => String::from(s),
+        None => {
+            imp::send_error_message(
+                ctx,
+                original_msg,
+                "Please provide an alias for this markov chain.",
+            )
+            .await?;
+            return Ok(());
+        }
+    };
+
+    let mut data_guard = ctx.data.write().await;
+    let guild_map = data_guard
+        .entry::<imp::data_keys::GetGuildData>()
+        .or_default();
+    let guild_data = guild_map.entry(guild_id.0).or_default();
+
+    let mut info = MarkovInfo::new(user_id.into(), 1);
+
+    guild_data
+        .messages_mut()
+        .entry(user_id.into())
+        .or_default()
+        .iter()
+        .for_each(|msg| info.feed_str(&msg));
+
+    guild_data.markov_mut().insert(alias, info);
+
+    original_msg
+        .channel_id
+        .say(
+            ctx,
+            format!(
+                "Markov info successfully generated for {}",
+                Mention::from(UserId::from(user_id))
+            ),
+        )
+        .await?;
+
+    Ok(())
+}
+
+async fn markov_say(ctx: &Context, original_msg: &Message, mut args: Args) -> CommandResult {
+    let guild_id = match original_msg.guild_id {
+        Some(id) => id,
+        None => {
+            imp::send_error_message(ctx, original_msg, "This command is not supported in DMs.")
+                .await?;
+            return Ok(());
+        }
+    };
+
+    let alias = match args.advance().current() {
+        Some(s) => String::from(s),
+        None => {
+            imp::send_error_message(ctx, original_msg, "Please provide an alias.").await?;
+            return Ok(());
+        }
+    };
+
+    let mut data_guard = ctx.data.write().await;
+    let guild_map = data_guard
+        .entry::<imp::data_keys::GetGuildData>()
+        .or_default();
+    let guild_data = guild_map.entry(guild_id.0).or_default();
+
+    match guild_data.markov().get(&alias) {
+        Some(info) => {
+            let generated = info.gen_string();
+            original_msg.channel_id.say(ctx, generated).await?;
+        }
+        None => {
+            imp::send_error_message(
+                ctx,
+                original_msg,
+                "That alias does not exist in this server.",
+            )
+            .await?;
         }
     }
 
