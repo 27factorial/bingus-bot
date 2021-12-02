@@ -17,7 +17,7 @@ use serenity::model::prelude::UserId;
 
 #[group]
 #[prefix("admin")]
-#[commands(activity, echo, nick)]
+#[commands(activity, echo, pin, nick)]
 struct AdminsOnly;
 
 #[command]
