@@ -128,6 +128,14 @@ async fn handle_normal(ctx: &Context, msg: &Message) {
         }
     }
 
+    if msg.content.to_ascii_lowercase().contains("time") {
+        let res = msg.reply(ctx, "Reset time. Same as usual. You can start the game though just to see the title screen.").await;
+
+        if let Err(e) = res {
+            eprintln!("Error replying to time: {:?}", e);
+        }
+    }
+
     if msg.content.to_ascii_lowercase() == "os" {
         let res = msg.reply(ctx, "https://cdn.discordapp.com/attachments/480613470367252500/854518024500936764/a9EyEKZ_460svvp9.webm").await;
 
