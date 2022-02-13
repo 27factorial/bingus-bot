@@ -143,4 +143,12 @@ async fn handle_normal(ctx: &Context, msg: &Message) {
             eprintln!("Error replying to os: {:?}", e);
         }
     }
+
+    if msg.content.to_ascii_lowercase().contains("reddit") {
+        let res = msg.reply(ctx, "reddit moment").await;
+
+        if let Err(e) = res {
+            eprintln!("Error replying to reddit: {:?}", e);
+        }
+    }
 }
