@@ -82,8 +82,13 @@
         },
         {
           "inline": false,
-          "name": ":five: Seasonal <:splicer:843042032079339550>",
+          "name": ":five: Seasonal <:placeholder:843261576312258600>",
           "value": "Take part in seasonal activities; fight for the allies of humanity and for the Last City."
+        },
+        {
+          "inline": false,
+          "name": ":six: Campaign <:placeholder:843261576312258600>",
+          "value": "Experience the Witch Queen Campaign either normally or on Legendary difficulty."
         }
       ],
       "type": "rich"
@@ -130,7 +135,7 @@
   "activity_roster_vanguard": {
     "embed": {
       "author": {
-        "name": "Vanguard Activities"
+        "name": "Vanguard Ops"
       },
       "color": 870305,
       "description": "Fight against combatants in three-man Vanguard operations.\nPlease select an activity.",
@@ -149,6 +154,11 @@
           "inline": false,
           "name": ":three: Grandmaster Nightfall",
           "value": "Work your way through the hardest missions the Vanguard has to offer to earn Adept loot. Good luck."
+        },
+        {
+          "inline": false,
+          "name": ":four: Battlegrounds",
+          "value": "Challenge the Cabal to the gladiatorial Rite of Proving, and defeat Caiatl's to-be War Councillors."
         }
       ],
       "type": "rich"
@@ -183,6 +193,15 @@
         "kind": {
           "Finished": {
             "activity_name": "Grandmaster Nightfall",
+            "size": 3
+          }
+        }
+      },
+      {
+        "name": "4️⃣",
+        "kind": {
+          "Finished": {
+            "activity_name": "Battlegrounds",
             "size": 3
           }
         }
@@ -365,22 +384,27 @@
       "fields": [
         {
           "inline": false,
-          "name": ":one: Vault of Glass",
+          "name": ":one: [PLACEHOLDER] ?????? (RAID)",
+          "value": "[PLACEHOLDER] The new raid releasing for Witch Queen.\nUse this to set up day-one raid groups."
+        },
+        {
+          "inline": false,
+          "name": ":two: Vault of Glass",
           "value": "Make your own fate by fighting through the underbelly of Venus to defeat Atheon, Time's Conflux."
         },
         {
           "inline": false,
-          "name": ":two: Deep Stone Crypt",
+          "name": ":three: Deep Stone Crypt",
           "value": "Uncover the legacy of the Bray family, and defend Europa against the remnants of House Salvation."
         },
         {
           "inline": false,
-          "name": ":three: Garden of Salvation",
+          "name": ":four: Garden of Salvation",
           "value": "Follow the Darkness's signal into the Black Garden to defeat the Sanctified Mind, Sol Inherent."
         },
         {
           "inline": false,
-          "name": ":four: Last Wish",
+          "name": ":five: Last Wish",
           "value": "Venture into the heart of the Dreaming City to free Savathûn's captives and slay the Taken Ahamkara, Riven of a Thousand Voices."
         }
       ],
@@ -396,11 +420,20 @@
       {
         "name": "1️⃣",
         "kind": {
-          "SelectNext": "activity_roster_vog_difficulty"
+          "Finished": {
+            "activity_name": "[PLACEHOLDER] ?????? (RAID)",
+            "size": 6
+          }
         }
       },
       {
         "name": "2️⃣",
+        "kind": {
+          "SelectNext": "activity_roster_vog_difficulty"
+        }
+      },
+      {
+        "name": "3️⃣",
         "kind": {
           "Finished": {
             "activity_name": "Deep Stone Crypt",
@@ -409,7 +442,7 @@
         }
       },
       {
-        "name": "3️⃣",
+        "name": "4️⃣",
         "kind": {
           "Finished": {
             "activity_name": "Garden of Salvation",
@@ -418,7 +451,7 @@
         }
       },
       {
-        "name": "4️⃣",
+        "name": "5️⃣",
         "kind": {
           "Finished": {
             "activity_name": "Last Wish",
@@ -486,43 +519,8 @@
       "fields": [
         {
           "inline": false,
-          "name": ":one: Astral Alignment",
-          "value": "Use the Wayfinder's Compass to fight back Xivu Arath's Taken forces and help Savathûn escape the shackles of her Worm."
-        },
-        {
-          "inline": false,
-          "name": ":two: Shattered Realm",
-          "value": "Delve into the Ascendant Plane to rescure Mara Sov's Techeuns from the Taken."
-        },
-        {
-          "inline": false,
-          "name": ":three: Override",
-          "value": "Ally with the House Light Kell, Mithrax, and splice into the Vex network to take down the Vex Mind from within."
-        },
-        {
-          "inline": false,
-          "name": ":four: Expunge",
-          "value": "Infiltrate the Vex network to uncover the secrets of the Vex and the Taken."
-        },
-        {
-          "inline": false,
-          "name": ":five: Battlegrounds",
-          "value": "Challenge the Cabal to the gladiatorial Rite of Proving, and defeat Caiatl's to-be War Councillors."
-        },
-        {
-          "inline": false,
-          "name": ":six: Presage",
-          "value": "Uncover the secrets of the Emperor's carrier ship, the Glykon, and investigate a Guardian's distress signal."
-        },
-        {
-          "inline": false,
-          "name": ":seven: Wrathborn Hunts",
-          "value": "Use a specially designed lure to hunt down and defeat Xivu Arath's minions known only as the Wrathborn. (This sounds better than it is. Trust me.)"
-        },
-        {
-          "inline": false,
-          "name": ":eight: Harbinger",
-          "value": "Follow the paracausal Hawk deep into the EDZ to drive the Emissaries of Savathûn away from the shard of the Traveler."
+          "name": ":one: [PLACEHOLDER] ?????? (ACTIVITY_ROSTER_SEASONAL)",
+          "value": "This will be replaced with the Season 16 seasonal activity(/ies) when it's released.\nThere's honestly not much to see here.\nSince you're still reading, you come here often? ;)"
         }
       ],
       "type": "rich"
@@ -538,71 +536,8 @@
         "name": "1️⃣",
         "kind": {
           "Finished": {
-            "activity_name": "Astral Alignment",
-            "size": 6
-          }
-        }
-      },
-      {
-        "name": "2️⃣",
-        "kind": {
-          "Finished": {
-            "activity_name": "Shattered Realm",
-            "size": 3
-          }
-        }
-      },
-      {
-        "name": "3️⃣",
-        "kind": {
-          "Finished": {
-            "activity_name": "Override",
-            "size": 6
-          }
-        }
-      },
-      {
-        "name": "4️⃣",
-        "kind": {
-          "Finished": {
-            "activity_name": "Expunge",
-            "size": 3
-          }
-        }
-      },
-      {
-        "name": "5️⃣",
-        "kind": {
-          "Finished": {
-            "activity_name": "Battlegrounds",
-            "size": 3
-          }
-        }
-      },
-      {
-        "name": "6️⃣",
-        "kind": {
-          "Finished": {
-            "activity_name": "Presage",
-            "size": 3
-          }
-        }
-      },
-      {
-        "name": "7️⃣",
-        "kind": {
-          "Finished": {
-            "activity_name": "Wrathborn Hunts",
-            "size": 3
-          }
-        }
-      },
-      {
-        "name": "8️⃣",
-        "kind": {
-          "Finished": {
-            "activity_name": "Harbinger",
-            "size": 3
+            "activity_name": "[PLACEHOLDER] ?????? (SEASONAL_ACTIVITY)",
+            "size": 255
           }
         }
       }
