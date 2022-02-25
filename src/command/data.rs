@@ -28,6 +28,7 @@ pub struct GuildData {
     free_activity_ids: Vec<u64>,
     messages: HashMap<UserId, Vec<String>>,
     markov: HashMap<String, MarkovInfo>,
+    changelog_channel: Option<ChannelId>,
 }
 
 impl GuildData {
@@ -39,6 +40,7 @@ impl GuildData {
             free_activity_ids: Vec::new(),
             messages: HashMap::new(),
             markov: HashMap::new(),
+            changelog_channel: None,
         }
     }
 
@@ -109,6 +111,11 @@ impl GuildData {
 
     pub fn markov_mut(&mut self) -> &mut HashMap<String, MarkovInfo> {
         &mut self.markov
+    }
+
+    pub fn set_changelog_channel(&mut self, id: u64) {
+        let id = ChannelId::from(id);
+        self.changelog_channel = Some(id);
     }
 }
 
