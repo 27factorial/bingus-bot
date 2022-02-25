@@ -384,7 +384,7 @@
       "fields": [
         {
           "inline": false,
-          "name": ":one: [PLACEHOLDER] ?????? (RAID)",
+          "name": ":one: [PLACEHOLDER] ?????? (Witch Queen Raid)",
           "value": "[PLACEHOLDER] The new raid releasing for Witch Queen.\nUse this to set up day-one raid groups."
         },
         {
@@ -421,7 +421,7 @@
         "name": "1️⃣",
         "kind": {
           "Finished": {
-            "activity_name": "[PLACEHOLDER] ?????? (RAID)",
+            "activity_name": "[PLACEHOLDER] ?????? (Witch Queen Raid)",
             "size": 6
           }
         }
@@ -519,8 +519,13 @@
       "fields": [
         {
           "inline": false,
-          "name": ":one: [PLACEHOLDER] ?????? (ACTIVITY_ROSTER_SEASONAL)",
-          "value": "This will be replaced with the Season 16 seasonal activity(/ies) when it's released.\nThere's honestly not much to see here.\nSince you're still reading, you come here often? ;)"
+          "name": ":one: The Wellspring",
+          "value": "Join five other Guardians to take control of the Wellspring from the Lucent Brood on one day, and defend it from the Scorn on the next."
+        },
+        {
+          "inline": false,
+          "name": ":two: PsiOps Battlegrounds",
+          "value": "Ally with Caiatl and her Psions to take down the Lucent Brood."
         }
       ],
       "type": "rich"
@@ -536,8 +541,17 @@
         "name": "1️⃣",
         "kind": {
           "Finished": {
-            "activity_name": "[PLACEHOLDER] ?????? (SEASONAL_ACTIVITY)",
-            "size": 255
+            "activity_name": "The Wellspring",
+            "size": 6
+          }
+        }
+      },
+      {
+        "name": "2️⃣",
+        "kind": {
+          "Finished": {
+            "activity_name": "PsiOps Battlegrounds",
+            "size": 3
           }
         }
       }
