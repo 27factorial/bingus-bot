@@ -102,12 +102,14 @@ async fn push_paths(paths: JsonPaths, type_map: &mut TypeMap) {
 
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Default)]
 struct Handler {
+    changelog_file_path: PathBuf,
     assets_file_path: PathBuf,
     embeds_file_path: PathBuf,
 }
 
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Default)]
 pub struct JsonPaths {
+    changelog: PathBuf,
     assets: PathBuf,
     embeds: PathBuf,
 }
@@ -120,6 +122,7 @@ impl EventHandler for Handler {
         eprintln!("Ready info: {:?}", ready);
 
         let paths = JsonPaths {
+            changelog: self.changelog_file_path.clone(),
             assets: self.assets_file_path.clone(),
             embeds: self.embeds_file_path.clone(),
         };
@@ -163,6 +166,7 @@ pub struct BotBuilder {
     prefix: Option<String>,
     assets_file_path: Option<PathBuf>,
     embeds_file_path: Option<PathBuf>,
+    changelog_file_path: Option<PathBuf>,
     message_handler: Option<for<'fut> fn(&'fut Context, &'fut Message) -> BoxFuture<'fut, ()>>,
     command_groups: Option<Vec<&'static CommandGroup>>,
 }
@@ -177,6 +181,7 @@ impl BotBuilder {
             prefix: None,
             assets_file_path: None,
             embeds_file_path: None,
+            changelog_file_path: None,
             message_handler: None,
             command_groups: None,
         }
@@ -188,7 +193,8 @@ impl BotBuilder {
             .ignore_bots(!config.allow_dm)
             .prefix(config.prefix)
             .assets_file(&config.assets_file)
-            .embeds_file(&config.embeds_file);
+            .embeds_file(&config.embeds_file)
+            .changelog_file(&config.changelog_file);
 
         match config.owner_ids {
             Some(ids) => builder.owners(ids),
@@ -254,6 +260,12 @@ impl BotBuilder {
     pub fn embeds_file<P: AsRef<Path>>(mut self, path: &P) -> Self {
         let path = path.as_ref();
         self.embeds_file_path = Some(PathBuf::from(path));
+        self
+    }
+
+    pub fn changelog_file<P: AsRef<Path>>(mut self, path: &P) -> Self {
+        let path = path.as_ref();
+        self.changelog_file_path = Some(PathBuf::from(path));
         self
     }
 
@@ -342,6 +354,7 @@ impl BotBuilder {
         let event_handler = Handler {
             assets_file_path: self.assets_file_path.unwrap_or_default(),
             embeds_file_path: self.embeds_file_path.unwrap_or_default(),
+            changelog_file_path: self.changelog_file_path.unwrap_or_default(),
         };
 
         BotClient {

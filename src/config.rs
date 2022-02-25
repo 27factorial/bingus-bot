@@ -107,6 +107,14 @@ pub struct BotConfig {
         help = "The location of the embeds.json file"
     )]
     pub embeds_file: PathBuf,
+
+    #[structopt(
+        short,
+        long,
+        parse(from_os_str),
+        help = "The location of the changelog.json file"
+    )]
+    pub changelog_file: PathBuf,
 }
 
 impl BotConfig {
@@ -155,6 +163,7 @@ impl Default for BotConfig {
             prefix: String::from("!"),
             assets_file: PathBuf::from("./config/assets.json"),
             embeds_file: PathBuf::from("./config/embeds.json"),
+            changelog_file: PathBuf::from(".config/changelog.json"),
         }
     }
 }
