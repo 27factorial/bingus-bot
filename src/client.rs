@@ -190,7 +190,7 @@ impl BotBuilder {
     pub fn from_config(config: BotConfig) -> Self {
         let builder = Self::new(config.token)
             .allow_dm(config.allow_dm)
-            .ignore_bots(!config.allow_dm)
+            .ignore_bots(!config.allow_bots)
             .prefix(config.prefix)
             .assets_file(&config.assets_file)
             .embeds_file(&config.embeds_file)
