@@ -202,7 +202,7 @@ async fn activity_create(ctx: &Context, original_msg: &Message) -> CommandResult
             };
 
             let date_time_now =
-                FixedOffset::west(4 * 3600).from_utc_datetime(&Utc::now().naive_utc());
+                FixedOffset::west(3 * 3600).from_utc_datetime(&Utc::now().naive_utc());
             let duration_until_start = match (date_time - date_time_now).to_std() {
                 Ok(duration) => duration,
                 Err(_) => {
