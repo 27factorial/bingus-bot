@@ -21,61 +21,8 @@ use std::time::Duration;
 
 #[group]
 #[prefix("admin")]
-#[commands(april_first, activity, echo, pin, buildcache, nick)]
+#[commands(activity, echo, pin, buildcache, nick)]
 struct AdminsOnly;
-
-#[command]
-#[description = "Tell nobody."]
-async fn april_first(ctx: &Context, original_msg: &Message, args: Args) -> CommandResult {
-    if imp::is_admin(ctx, original_msg.author.id).await {
-        let guild = match original_msg.guild(ctx).await {
-            Some(guild) => guild,
-            None => {
-                imp::send_error_message(ctx, original_msg, "This command is not supported in DMs")
-                    .await?;
-
-                return Ok(());
-            }
-        };
-
-        original_msg.delete(ctx).await?;
-
-        original_msg
-            .channel_id
-            .say(
-                ctx,
-                "Good morning @everyone, I hope you all have a great and completely normal day!",
-            )
-            .await?;
-
-        let old_members = guild.members.clone();
-
-        for member in guild.members.values() {
-            member
-                .edit(ctx, |member| member.nickname("everyone"))
-                .await?;
-        }
-
-        let one_day = Duration::from_secs(24 * 60 * 60);
-
-        let sleep = tokio::time::sleep(one_day);
-        tokio::pin!(sleep);
-
-        sleep.await;
-
-        for member in guild.members.values() {
-            if let Some(old) = old_members.get(&member.user.id) {
-                member
-                    .edit(ctx, |member_edit| {
-                        member_edit
-                            .nickname(old.nick.clone().unwrap_or_else(|| member.user.name.clone()))
-                    })
-                    .await?;
-            }
-        }
-    }
-    Ok(())
-}
 
 #[command]
 async fn activity(ctx: &Context, original_msg: &Message, args: Args) -> CommandResult {

@@ -154,5 +154,9 @@ async fn handle_normal(ctx: &Context, msg: &Message) {
                 eprintln!("Error replying to reddit: {:?}", e);
             }
         }
+
+        if msg.content.to_ascii_lowercase().contains("sigma") {
+            let res = msg.reply(ctx, "https://cdn.discordapp.com/attachments/918692837728612372/967957254114541639/unknown.png");
+        }
     }
 }
